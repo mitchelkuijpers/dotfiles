@@ -1,12 +1,13 @@
-{ ... }:
-{
+_: {
   imports = [
     ../../profiles/dev.nix
   ];
 
-  home.username = "mitkuijp";
-  home.homeDirectory = "/Users/mitkuijp";
+  home = {
+    username = "mitkuijp";
+    homeDirectory = "/Users/mitkuijp";
 
-  # Set this once when you start, then don't bump casually.
-  home.stateVersion = "24.11";
+    # Set this once when you start, then don't bump casually.
+    stateVersion = "24.11";
+  };
 }

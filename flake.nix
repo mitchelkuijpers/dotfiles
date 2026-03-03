@@ -10,18 +10,20 @@
     };
   };
 
-  outputs = { nixpkgs, home-manager, ... }:
-    let
-      system = "aarch64-darwin";
-      pkgs = nixpkgs.legacyPackages.${system};
-    in
-    {
-      # Makes `nix run .` launch the pinned home-manager CLI
-      packages.${system}.default = home-manager.packages.${system}.default;
+  outputs = {
+    nixpkgs,
+    home-manager,
+    ...
+  }: let
+    system = "aarch64-darwin";
+    pkgs = nixpkgs.legacyPackages.${system};
+  in {
+    # Makes `nix run .` launch the pinned home-manager CLI
+    packages.${system}.default = home-manager.packages.${system}.default;
 
-      homeConfigurations.mitkuijp = home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
-        modules = [ ./hosts/mitkuijp-macbook/home.nix ];
-      };
+    homeConfigurations.mitkuijp = home-manager.lib.homeManagerConfiguration {
+      inherit pkgs;
+      modules = [./hosts/mitkuijp-macbook/home.nix];
     };
+  };
 }

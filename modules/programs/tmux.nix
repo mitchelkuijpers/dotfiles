@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-{
+{pkgs, ...}: {
   # Keep compatibility for tools/scripts that still expect ~/.tmux.conf.
   home.file.".tmux.conf".text = ''
     source-file ~/.config/tmux/tmux.conf

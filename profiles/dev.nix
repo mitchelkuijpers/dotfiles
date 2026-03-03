@@ -1,5 +1,4 @@
-{ ... }:
-{
+_: {
   imports = [
     ./base.nix
     ../modules/common/packages.nix

@@ -1,5 +1,4 @@
-{ ... }:
-{
+_: {
   imports = [
     ../modules/common/env.nix
     ../modules/common/tmuxinator.nix

@@ -15,4 +15,6 @@ This repository manages local developer setup with Home Manager + Nix flakes.
 - `make switch`: apply the current profile.
 - `make build`: build the activation package.
 - `make check`: run flake checks.
+- `make fmt`: format Nix files with alejandra.
+- `make lint`: run `statix` and `deadnix`.
 - `make update`: update `flake.lock`.
