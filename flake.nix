@@ -21,7 +21,7 @@
 
       homeConfigurations.mitkuijp = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
-        modules = [ ./home.nix ];
+        modules = [ ./hosts/mitkuijp-macbook/home.nix ];
       };
     };
 }
