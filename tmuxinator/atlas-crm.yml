@@ -1,0 +1,77 @@
+# /Users/mitkuijp/.config/tmuxinator/atlas-crm.yml
+
+name: Atlas CRM
+root: ~/Development/atlas-crm-connect
+
+# Optional tmux socket
+# socket_name: foo
+
+# Note that the pre and post options have been deprecated and will be replaced by
+# project hooks.
+
+# Project hooks
+
+# Runs on project start, always
+# on_project_start: command
+
+# Run on project start, the first time
+# on_project_first_start: command
+
+# Run on project start, after the first time
+# on_project_restart: command
+
+# Run on project exit ( detaching from tmux session )
+# on_project_exit: command
+
+# Run on project stop
+# on_project_stop: command
+
+# Runs in each window and pane before window/pane specific commands. Useful for setting up interpreter versions.
+# pre_window: rbenv shell 2.0.0-p247
+
+# Pass command line options to tmux. Useful for specifying a different tmux.conf.
+# tmux_options: -f ~/.tmux.mac.conf
+
+# Change the command to call tmux. This can be used by derivatives/wrappers like byobu.
+# tmux_command: byobu
+
+# Specifies (by name or index) which window will be selected on project startup. If not set, the first window is used.
+startup_window: forge-nvim
+
+# Specifies (by index) which pane of the specified window will be selected on project startup. If not set, the first pane is used.
+# startup_pane: 1
+
+# Controls whether the tmux session should be attached to automatically. Defaults to true.
+# attach: false
+
+windows:
+  - connect-nvim:
+      panes:
+        - sleep 10 && nvim deps.edn
+  - connect-fb-shadow:
+      layout: even-horizontal
+      panes:
+        - yarn shadow-cljs --force-spawn -A:test:dev compile adf-lib functions app
+        - sleep 20 && make dev-firebase
+  - connect-ngrok-es:
+      layout: even-horizontal
+      panes:
+        - USER=mitchel make ngrok
+        - make dev-elasticsearch
+  - forge-nvim:
+      root: ~/Development/forge-apps
+      panes:
+        - sleep 20 && nvim deps.edn
+  - forge-build:
+      root: ~/Development/forge-apps/projects/atlas-crm-for-confluence
+      panes:
+        - bb watch
+  - forge-conf:
+      root: ~/Development/forge-apps/projects/atlas-crm-for-confluence
+      panes:
+        - bb tunnel
+  - forge-jira:
+      root: ~/Development/forge-apps/projects/atlas-crm-for-jira
+      panes:
+        - sleep 30 && bb tunnel
+

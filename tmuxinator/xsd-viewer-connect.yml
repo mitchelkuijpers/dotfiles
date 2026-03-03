@@ -1,0 +1,26 @@
+---
+name: xsd-viewer-connect
+project_root: "/Users/mitkuijp/Development/xsd-viewer-connect"
+on_project_start: yarn install
+startup_window: nvim
+windows:
+  - shadow-cljs:
+      layout: main-vertical
+      panes:
+        - make watch
+  - dev-firebase:
+      layout: main-vertical
+      panes:
+        - make dev-firebase
+        - make dev-proxy
+  - gcs:
+      layout: main-vertical
+      panes:
+        - make dev-google-storage
+        - USER=mitchel make ngrok
+  - repl-server:
+      panes:
+        - FIRESTORE_EMULATOR_HOST="127.0.0.1:8080" clj -M:dev:test:repl/conjure
+  - nvim:
+      panes:
+        - nvim deps.edn
