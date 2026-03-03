@@ -61,18 +61,31 @@
     enableFishIntegration = true;
   };
 
+  programs.starship = {
+    enable = true;
+    enableFishIntegration = true;
+  };
+
   home.packages = with pkgs; [
+    cmake
     coreutils
+    deno
     fd
     gh
+    git-crypt
     gnused
     gnutar
+    go
     jq
+    mkcert
     neovim
     ripgrep
+    sd
     shellcheck
     tree
+    uv
     wget
     yq
+    zig
   ];
 }
