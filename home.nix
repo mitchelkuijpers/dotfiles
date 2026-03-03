@@ -51,6 +51,21 @@
     '';
   };
 
+  programs.bash = {
+    enable = true;
+    enableCompletion = true;
+  };
+
+  programs.tmux = {
+    enable = true;
+    clock24 = true;
+  };
+
+  programs.mise = {
+    enable = true;
+    enableFishIntegration = true;
+  };
+
   programs.direnv = {
     enable = true;
     nix-direnv.enable = true;
@@ -82,6 +97,7 @@
     ripgrep
     sd
     shellcheck
+    tmuxinator
     tree
     uv
     wget
