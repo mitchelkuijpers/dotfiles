@@ -72,6 +72,11 @@ in {
     mise
     terraform
     terraform-ls
+    gnugrep
+    terminal-notifier
+
+    # Docker
+    docker
 
     # AI
     piCodingAgent
@@ -91,5 +96,9 @@ in {
     clj-kondo
     cljfmt
     polylith
+
+    # Java (LTS)
+    jdk21
+    maven
   ];
 }
