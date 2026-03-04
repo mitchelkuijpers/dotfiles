@@ -7,7 +7,7 @@
     packageFile,
     lockFile,
   }: let
-    src = pkgs.fetchzip {
+    src = pkgs.fetchurl {
       inherit url hash;
     };
 
@@ -16,6 +16,7 @@
   in
     pkgs.buildNpmPackage {
       inherit pname version src;
+      sourceRoot = "package";
 
       npmDeps = pkgs.importNpmLock {
         inherit package packageLock;
