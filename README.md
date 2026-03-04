@@ -39,7 +39,7 @@ Steps:
 
 1. Pick a version and tarball URL:
    - `npm view <package> version dist.tarball --json`
-2. Compute tarball hash (Nix-style base64 SHA256):
+2. Compute tarball hash (Nix-style base64 SHA256, used with `fetchurl`):
    - `npm pack <package>@<version>`
    - `openssl dgst -sha256 -binary <tarball.tgz> | openssl base64 -A`
 3. Generate lock metadata from the tarball:
