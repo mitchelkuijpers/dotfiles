@@ -16,7 +16,13 @@
     ...
   }: let
     system = "aarch64-darwin";
-    pkgs = nixpkgs.legacyPackages.${system};
+    pkgs = import nixpkgs {
+      inherit system;
+      config.allowUnfreePredicate = pkg:
+        builtins.elem (nixpkgs.lib.getName pkg) [
+          "terraform"
+        ];
+    };
   in {
     # Makes `nix run .` launch the pinned home-manager CLI
     packages.${system}.default = home-manager.packages.${system}.default;

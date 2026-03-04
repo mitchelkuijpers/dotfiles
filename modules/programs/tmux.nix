@@ -22,6 +22,10 @@
     ];
 
     extraConfig = ''
+      # Ensure panes/windows use fish even when plugins (e.g. sensible) set default-command.
+      set -g default-shell "${pkgs.fish}/bin/fish"
+      set -g default-command ""
+
       bind-key -T copy-mode-vi v send -X begin-selection
       bind-key -T copy-mode-vi y send -X copy-selection
 

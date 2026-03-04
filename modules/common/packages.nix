@@ -22,5 +22,17 @@
     yq
     zig
     codex
+    mise
+    pnpm
+    terraform
+    terraform-ls
+
+    clojure
+    clojure-lsp
+    babashka
+    bbin
+    clj-kondo
+    cljfmt
+    polylith
   ];
 }
