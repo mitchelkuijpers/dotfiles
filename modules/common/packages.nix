@@ -68,7 +68,6 @@ in {
     wget
     yq
     zig
-    codex
     mise
     terraform
     terraform-ls
@@ -77,6 +76,7 @@ in {
 
     # Docker
     docker
+    docker-credential-helpers
 
     # AI
     piCodingAgent
