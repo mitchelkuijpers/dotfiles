@@ -1,0 +1,209 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage:
+  scripts/pin-npm-cli --version VERSION [--attr ATTR] [--package PACKAGE] [--pname PNAME] [--lock-name LOCK_NAME]
+
+Examples:
+  scripts/pin-npm-cli --attr piCodingAgent --version 0.56.2
+  scripts/pin-npm-cli --package @mariozechner/pi-coding-agent --version 0.56.2
+  scripts/pin-npm-cli --package @scope/new-cli --version 1.2.3 --attr newCli
+
+The helper will:
+  - resolve the tarball URL from npm
+  - compute the Nix sha256 for fetchurl
+  - refresh assets/npm-locks/<lock-name>.package.json
+  - refresh assets/npm-locks/<lock-name>.package-lock.json
+  - upsert assets/npm-locks/pinned-packages.json
+EOF
+}
+
+require_cmd() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    echo "error: missing required command: $1" >&2
+    exit 1
+  fi
+}
+
+derive_attr_name() {
+  printf '%s\n' "$1" | awk '
+    BEGIN { FS = "[^[:alnum:]]+" }
+    {
+      out = ""
+      for (i = 1; i <= NF; i++) {
+        if ($i == "") {
+          continue
+        }
+
+        token = tolower($i)
+        if (out == "") {
+          out = token
+        } else {
+          out = out toupper(substr(token, 1, 1)) substr(token, 2)
+        }
+      }
+      print out
+    }
+  '
+}
+
+repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+metadata_file="$repo_root/assets/npm-locks/pinned-packages.json"
+
+attr=""
+package=""
+pname=""
+lock_name=""
+version=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --attr)
+      attr="${2:-}"
+      shift 2
+      ;;
+    --package)
+      package="${2:-}"
+      shift 2
+      ;;
+    --pname)
+      pname="${2:-}"
+      shift 2
+      ;;
+    --lock-name)
+      lock_name="${2:-}"
+      shift 2
+      ;;
+    --version)
+      version="${2:-}"
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "error: unknown argument: $1" >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
+
+if [[ -z "$version" ]]; then
+  echo "error: --version is required" >&2
+  usage >&2
+  exit 1
+fi
+
+if [[ ! -f "$metadata_file" ]]; then
+  printf '{}\n' > "$metadata_file"
+fi
+
+require_cmd jq
+require_cmd npm
+require_cmd openssl
+require_cmd tar
+
+if [[ -n "$attr" ]]; then
+  if [[ -z "$package" ]]; then
+    package=$(jq -r --arg attr "$attr" '.[$attr].packageName // empty' "$metadata_file")
+  fi
+  if [[ -z "$pname" ]]; then
+    pname=$(jq -r --arg attr "$attr" '.[$attr].pname // empty' "$metadata_file")
+  fi
+  if [[ -z "$lock_name" ]]; then
+    lock_name=$(jq -r --arg attr "$attr" '.[$attr].lockBaseName // empty' "$metadata_file")
+  fi
+fi
+
+if [[ -z "$package" ]]; then
+  echo "error: --package is required for new entries or when --attr does not already exist" >&2
+  exit 1
+fi
+
+package_basename=${package##*/}
+
+if [[ -z "$attr" ]]; then
+  attr=$(derive_attr_name "$package_basename")
+fi
+if [[ -z "$pname" ]]; then
+  pname="$package_basename"
+fi
+if [[ -z "$lock_name" ]]; then
+  lock_name="$pname"
+fi
+
+tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/pin-npm-cli.XXXXXX")
+trap 'rm -rf "$tmpdir"' EXIT
+
+export npm_config_cache="$tmpdir/.npm-cache"
+export npm_config_update_notifier=false
+export npm_config_fund=false
+
+pushd "$tmpdir" >/dev/null
+
+url=$(npm view "${package}@${version}" dist.tarball --json | jq -r '.')
+if [[ -z "$url" || "$url" == "null" ]]; then
+  echo "error: could not resolve a tarball URL for ${package}@${version}" >&2
+  exit 1
+fi
+
+npm pack "${package}@${version}" >/dev/null
+tarball=$(find . -maxdepth 1 -name '*.tgz' -print -quit)
+if [[ -z "$tarball" ]]; then
+  echo "error: npm pack did not produce a tarball" >&2
+  exit 1
+fi
+
+hash="sha256-$(openssl dgst -sha256 -binary "$tarball" | openssl base64 -A)"
+
+tar -xzf "$tarball"
+if [[ ! -f package/package.json ]]; then
+  echo "error: tarball did not contain package/package.json" >&2
+  exit 1
+fi
+
+cp package/package.json "$repo_root/assets/npm-locks/${lock_name}.package.json"
+
+(
+  cd package
+  npm install --package-lock-only --ignore-scripts >/dev/null
+)
+
+cp package/package-lock.json "$repo_root/assets/npm-locks/${lock_name}.package-lock.json"
+
+popd >/dev/null
+
+tmp_json="$tmpdir/pinned-packages.json"
+jq -S \
+  --arg attr "$attr" \
+  --arg packageName "$package" \
+  --arg pname "$pname" \
+  --arg version "$version" \
+  --arg url "$url" \
+  --arg hash "$hash" \
+  --arg lockBaseName "$lock_name" \
+  '
+  .[$attr] = {
+    hash: $hash,
+    lockBaseName: $lockBaseName,
+    packageName: $packageName,
+    pname: $pname,
+    url: $url,
+    version: $version
+  }
+  ' "$metadata_file" > "$tmp_json"
+
+mv "$tmp_json" "$metadata_file"
+
+printf 'Pinned %s (%s)\n' "$attr" "$package"
+printf '  version: %s\n' "$version"
+printf '  url: %s\n' "$url"
+printf '  hash: %s\n' "$hash"
+printf '  metadata: %s\n' "$metadata_file"
+printf '  package file: %s\n' "$repo_root/assets/npm-locks/${lock_name}.package.json"
+printf '  lock file: %s\n' "$repo_root/assets/npm-locks/${lock_name}.package-lock.json"

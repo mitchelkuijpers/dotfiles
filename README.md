@@ -32,24 +32,42 @@ If a package is marked unfree (for example `terraform`), allow it in `flake.nix`
 
 ### 2) Pinned npm CLI packages (latest npm, reproducible in Nix)
 
-This repo has a helper in `modules/common/packages.nix` called `mkPinnedNpmCli`.
-Use it when nixpkgs is missing/outdated for a global npm CLI.
+Use this when nixpkgs is missing/outdated for a global npm CLI.
 
-Steps:
+Preferred workflow:
+
+1. Run the helper:
+   - new package: `make pin-npm PACKAGE=@scope/name VERSION=1.2.3`
+   - existing package: `make pin-npm ATTR=piCodingAgent VERSION=0.56.2`
+2. The helper will:
+   - resolve the tarball URL from npm
+   - compute the `fetchurl` hash
+   - refresh `assets/npm-locks/<lock-name>.package.json`
+   - refresh `assets/npm-locks/<lock-name>.package-lock.json`
+   - upsert `assets/npm-locks/pinned-packages.json`
+3. All pinned npm CLIs declared in `assets/npm-locks/pinned-packages.json` are installed automatically by `modules/common/packages.nix`, so new entries do not need a separate package list edit.
+4. Validate with `make lint` and `make build`.
+5. Apply with `make switch`.
+
+Optional overrides:
+
+- `ATTR=<attr>` sets the Nix attribute name stored in `pinned-packages.json`.
+- `PNAME=<pname>` overrides the derivation/package base name.
+- `LOCK_NAME=<name>` overrides the `assets/npm-locks/<name>.*` file prefix.
+
+Manual fallback:
 
 1. Pick a version and tarball URL:
    - `npm view <package> version dist.tarball --json`
-2. Compute tarball hash (Nix-style base64 SHA256, used with `fetchurl`):
+2. Compute tarball hash:
    - `npm pack <package>@<version>`
    - `openssl dgst -sha256 -binary <tarball.tgz> | openssl base64 -A`
 3. Generate lock metadata from the tarball:
    - extract `package/package.json` into `assets/npm-locks/<name>.package.json`
    - run `npm install --package-lock-only --ignore-scripts` in extracted sources
    - save lock to `assets/npm-locks/<name>.package-lock.json`
-4. Add a new `mkPinnedNpmCli { ... }` entry in `modules/common/packages.nix` with:
-   - `pname`, `version`, `url`, `hash`, `packageFile`, `lockFile`
-5. Add that derivation to `home.packages`.
-6. Apply with `make switch`.
+4. Add or update the entry in `assets/npm-locks/pinned-packages.json`.
+5. Apply with `make switch`.
 
 Current examples:
 - `piCodingAgent`

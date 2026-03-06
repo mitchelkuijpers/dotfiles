@@ -6,19 +6,19 @@
   "scripts": {
     "postinstall": "bun ./postinstall.mjs || node ./postinstall.mjs"
   },
-  "version": "1.2.17",
+  "version": "1.2.20",
   "license": "MIT",
   "optionalDependencies": {
-    "opencode-linux-x64": "1.2.17",
-    "opencode-linux-x64-baseline-musl": "1.2.17",
-    "opencode-darwin-arm64": "1.2.17",
-    "opencode-darwin-x64-baseline": "1.2.17",
-    "opencode-linux-x64-baseline": "1.2.17",
-    "opencode-darwin-x64": "1.2.17",
-    "opencode-windows-x64-baseline": "1.2.17",
-    "opencode-linux-arm64": "1.2.17",
-    "opencode-linux-arm64-musl": "1.2.17",
-    "opencode-linux-x64-musl": "1.2.17",
-    "opencode-windows-x64": "1.2.17"
+    "opencode-darwin-x64": "1.2.20",
+    "opencode-linux-arm64": "1.2.20",
+    "opencode-windows-x64-baseline": "1.2.20",
+    "opencode-linux-x64-musl": "1.2.20",
+    "opencode-linux-arm64-musl": "1.2.20",
+    "opencode-windows-x64": "1.2.20",
+    "opencode-linux-x64-baseline-musl": "1.2.20",
+    "opencode-linux-x64": "1.2.20",
+    "opencode-darwin-x64-baseline": "1.2.20",
+    "opencode-linux-x64-baseline": "1.2.20",
+    "opencode-darwin-arm64": "1.2.20"
   }
 }

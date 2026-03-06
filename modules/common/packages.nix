@@ -28,77 +28,74 @@
       dontNpmBuild = true;
     };
 
-  piCodingAgent = mkPinnedNpmCli {
-    pname = "pi-coding-agent";
-    version = "0.56.2";
-    url = "https://registry.npmjs.org/@mariozechner/pi-coding-agent/-/pi-coding-agent-0.56.2.tgz";
-    hash = "sha256-XmokVNrL1Fm+zffFUpJ+a05Oq7iGLYV3HLe5OE9jNVk=";
-    packageFile = ../../assets/npm-locks/pi-coding-agent.package.json;
-    lockFile = ../../assets/npm-locks/pi-coding-agent.package-lock.json;
-  };
+  pinnedNpmCliDefinitions = builtins.fromJSON (
+    builtins.readFile ../../assets/npm-locks/pinned-packages.json
+  );
 
-  opencodeAi = mkPinnedNpmCli {
-    pname = "opencode-ai";
-    version = "1.2.17";
-    url = "https://registry.npmjs.org/opencode-ai/-/opencode-ai-1.2.17.tgz";
-    hash = "sha256-zwoIZ6ajQY7WOhLa9d9gOgWv3XoKGE81jemkzFY7zoY=";
-    packageFile = ../../assets/npm-locks/opencode-ai.package.json;
-    lockFile = ../../assets/npm-locks/opencode-ai.package-lock.json;
-  };
+  pinnedNpmCliPackages =
+    builtins.mapAttrs (
+      _: cfg:
+        mkPinnedNpmCli {
+          inherit (cfg) pname version url hash;
+          packageFile = ../../assets/npm-locks + "/${cfg.lockBaseName}.package.json";
+          lockFile = ../../assets/npm-locks + "/${cfg.lockBaseName}.package-lock.json";
+        }
+    )
+    pinnedNpmCliDefinitions;
 in {
-  home.packages = with pkgs; [
-    cmake
-    coreutils
-    deno
-    fd
-    gh
-    git-crypt
-    gnused
-    gnutar
-    go
-    jq
-    mkcert
-    neovim
-    ripgrep
-    sd
-    shellcheck
-    tmuxinator
-    tree
-    uv
-    wget
-    yq
-    zig
-    mise
-    terraform
-    terraform-ls
-    gnugrep
-    terminal-notifier
+  home.packages =
+    (with pkgs; [
+      cmake
+      coreutils
+      deno
+      fd
+      gh
+      git-crypt
+      gnused
+      gnutar
+      go
+      jq
+      mkcert
+      neovim
+      ripgrep
+      sd
+      shellcheck
+      tmuxinator
+      tree
+      uv
+      wget
+      yq
+      zig
+      mise
+      terraform
+      terraform-ls
+      gnugrep
+      terminal-notifier
 
-    # Docker
-    docker
-    docker-credential-helpers
+      # Docker
+      docker
+      docker-credential-helpers
+    ])
+    # Install every pinned npm CLI declared in assets/npm-locks/pinned-packages.json.
+    ++ builtins.attrValues pinnedNpmCliPackages
+    ++ (with pkgs; [
+      # Node
+      yarn
+      pnpm
+      nodejs_24
+      bun
 
-    # AI
-    piCodingAgent
-    opencodeAi
+      # Clojure
+      clojure
+      clojure-lsp
+      babashka
+      bbin
+      clj-kondo
+      cljfmt
+      polylith
 
-    # Node
-    yarn
-    pnpm
-    nodejs_24
-    bun
-
-    # Clojure
-    clojure
-    clojure-lsp
-    babashka
-    bbin
-    clj-kondo
-    cljfmt
-    polylith
-
-    # Java (LTS)
-    jdk21
-    maven
-  ];
+      # Java (LTS)
+      jdk21
+      maven
+    ]);
 }
