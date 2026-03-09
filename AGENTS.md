@@ -42,20 +42,13 @@ Run from repo root:
 - Add packages to `modules/common/packages.nix` under `home.packages`.
 - If package is unfree, allow it in `flake.nix` via `config.allowUnfreePredicate`.
 
-### Pinned npm CLI packages
+### AI coding agent packages
 
-This repo uses `mkPinnedNpmCli` in `modules/common/packages.nix`.
-
-- Use `fetchurl` (not `fetchzip`) for npm tarballs.
-- Set `sourceRoot = "package"`.
-- Store metadata in `assets/npm-locks/`:
-  - `<name>.package.json`
-  - `<name>.package-lock.json`
-- Wire via `packageFile` + `lockFile` in `mkPinnedNpmCli` call.
+- `opencode` and `pi` are sourced from the flake input `numtide/llm-agents.nix`.
+- Update those versions by updating the `llm-agents` input in `flake.lock`.
 
 ## Shell-specific behavior
 
-- Fish defines a `pi` wrapper in `modules/programs/fish.nix` that sets a private npm prefix for pi package installs.
 - Avoid reintroducing global `NPM_CONFIG_PREFIX` in `modules/common/env.nix` unless explicitly requested.
 
 ## Validation checklist for changes

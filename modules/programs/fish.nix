@@ -12,13 +12,6 @@ _: {
       alias nd "nix develop path:."
       alias nb "nix build path:."
       alias nr "nix run path:."
-
-      # pi wrapper: isolate npm global installs to a writable user directory.
-      function pi --wraps pi --description "Run pi with isolated npm global prefix"
-        set -l pi_npm_prefix "$HOME/.pi/npm-global"
-        mkdir -p "$pi_npm_prefix"
-        env NPM_CONFIG_PREFIX="$pi_npm_prefix" command pi $argv
-      end
     '';
   };
 }
