@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    llm-agents.url = "github:numtide/llm-agents.nix";
 
     home-manager = {
       url = "github:nix-community/home-manager";
@@ -10,7 +11,7 @@
     };
   };
 
-  outputs = {
+  outputs = inputs @ {
     nixpkgs,
     home-manager,
     ...
@@ -29,6 +30,9 @@
 
     homeConfigurations.mitkuijp = home-manager.lib.homeManagerConfiguration {
       inherit pkgs;
+      extraSpecialArgs = {
+        inherit inputs;
+      };
       modules = [./hosts/mitkuijp-macbook/home.nix];
     };
   };
