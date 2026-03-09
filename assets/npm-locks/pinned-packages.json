@@ -1,18 +1,18 @@
 {
   "opencodeAi": {
-    "hash": "sha256-tIo3vvF81gHnFrdi95a5HOhsu9X0QvZGrxOeO7rX49g=",
+    "hash": "sha256-aQjswTGFaIgPFaFztUT4wYeF3tMxaZ8MdQELEBrEfc8=",
     "lockBaseName": "opencode-ai",
     "packageName": "opencode-ai",
     "pname": "opencode-ai",
-    "url": "https://registry.npmjs.org/opencode-ai/-/opencode-ai-1.2.20.tgz",
-    "version": "1.2.20"
+    "url": "https://registry.npmjs.org/opencode-ai/-/opencode-ai-1.2.22.tgz",
+    "version": "1.2.22"
   },
   "piCodingAgent": {
-    "hash": "sha256-XmokVNrL1Fm+zffFUpJ+a05Oq7iGLYV3HLe5OE9jNVk=",
+    "hash": "sha256-hkjnHVVTOI7XEPHvQWXZ8JDheD5EZilBDFRYdaxWS28=",
     "lockBaseName": "pi-coding-agent",
     "packageName": "@mariozechner/pi-coding-agent",
     "pname": "pi-coding-agent",
-    "url": "https://registry.npmjs.org/@mariozechner/pi-coding-agent/-/pi-coding-agent-0.56.2.tgz",
-    "version": "0.56.2"
+    "url": "https://registry.npmjs.org/@mariozechner/pi-coding-agent/-/pi-coding-agent-0.57.1.tgz",
+    "version": "0.57.1"
   }
 }
