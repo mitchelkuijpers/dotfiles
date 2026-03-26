@@ -1,7 +1,7 @@
 _: {
   home.sessionVariables = {
-    EDITOR = "nvim";
-    VISUAL = "nvim";
+    EDITOR = "hx";
+    VISUAL = "hx";
     LANG = "en_US.UTF-8";
     CONNECT__BASEURL = "https://mitchel.eu.ngrok.io";
   };
