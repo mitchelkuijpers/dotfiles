@@ -7,6 +7,8 @@ _: {
     ../modules/programs/git.nix
     ../modules/programs/fish.nix
     ../modules/programs/bash.nix
+    ../modules/programs/zsh.nix
     ../modules/programs/tmux.nix
+    ../modules/programs/zellij.nix
   ];
 }

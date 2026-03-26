@@ -9,7 +9,7 @@
     clock24 = true;
     historyLimit = 30000;
     keyMode = "vi";
-    mouse = true;
+    mouse = false;
     prefix = "C-a";
     shell = "${pkgs.fish}/bin/fish";
     terminal = "tmux-256color";

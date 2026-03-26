@@ -4,12 +4,11 @@
   ...
 }: let
   llmAgentsPackages = with inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}; [
-    opencode
-    pi
     tuicr
     rtk
     agent-browser
     codex
+    codex-acp
   ];
 in {
   home.packages =
@@ -30,6 +29,7 @@ in {
       sd
       shellcheck
       tmuxinator
+      zellij
       tree
       uv
       wget
@@ -40,6 +40,10 @@ in {
       terraform-ls
       gnugrep
       terminal-notifier
+      skopeo
+      fnm
+      helix
+      devbox
 
       # Docker
       docker
