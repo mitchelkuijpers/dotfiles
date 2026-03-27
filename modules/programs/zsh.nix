@@ -1,6 +1,6 @@
 _: {
   programs.zsh = {
-    enable = true;
+    enable = false;
     enableCompletion = true;
   };
 }

@@ -1,7 +1,8 @@
 _: {
   programs.zellij = {
     enable = true;
-    # enableFishIntegration = true;
+    enableFishIntegration = true;
+    exitShellOnExit = true;
     settings = {
       default_mode = "locked";
       theme = "catppuccin-macchiato";

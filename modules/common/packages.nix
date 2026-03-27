@@ -7,8 +7,6 @@
     tuicr
     rtk
     agent-browser
-    codex
-    codex-acp
   ];
 in {
   home.packages =
@@ -70,5 +68,8 @@ in {
       # Java (LTS)
       jdk21
       maven
+
+      # Kotlin
+      kotlin
     ]);
 }
