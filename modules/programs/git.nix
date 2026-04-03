@@ -1,15 +1,16 @@
-_: {
+{config, ...}: {
   programs.git = {
     enable = true;
 
     settings = {
       user.name = "Mitchel Kuijpers";
-      user.email = "mitchelkuijpers@gmail.com";
+      user.email = "mitchel.kuijpers@avisi.nl";
       push.autoSetupRemote = true;
+      gpg.format = "ssh";
     };
 
     signing = {
-      key = "99A25F98085085A9";
+      key = "${config.home.homeDirectory}/.ssh/id_ed25519.pub";
       signByDefault = true;
     };
 

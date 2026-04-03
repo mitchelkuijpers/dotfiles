@@ -43,6 +43,10 @@ in {
       helix
       devbox
 
+      #Fish
+      fishPlugins.bass
+      fishPlugins.z
+
       # Docker
       docker
       docker-credential-helpers

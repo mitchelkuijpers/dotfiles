@@ -12,5 +12,7 @@ _: {
     ../modules/programs/zellij.nix
     ../modules/programs/helix.nix
     ../modules/programs/lazygit.nix
+    ../modules/programs/zoxide.nix
+    ../modules/programs/yazi.nix
   ];
 }
