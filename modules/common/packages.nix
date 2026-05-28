@@ -5,8 +5,8 @@
 }: let
   llmAgentsPackages = with inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}; [
     tuicr
-    rtk
-    agent-browser
+    codex
+    opencode
   ];
 in {
   home.packages =
@@ -39,9 +39,6 @@ in {
       gnugrep
       terminal-notifier
       skopeo
-      fnm
-      helix
-      devbox
 
       #Fish
       fishPlugins.bass
@@ -50,10 +47,21 @@ in {
       # Docker
       docker
       docker-credential-helpers
+
+      # AI
+      ansible
+
+      # Entrance
+      kubectl
+      awscli2
+      freelens-bin
+      k9s
     ])
     # AI coding agents packaged outside nixpkgs.
     ++ llmAgentsPackages
     ++ (with pkgs; [
+      qemu
+
       # Node
       yarn
       pnpm
@@ -75,5 +83,9 @@ in {
 
       # Kotlin
       kotlin
+
+      # Solution Studio
+      ffmpeg
+      whisper-cpp
     ]);
 }

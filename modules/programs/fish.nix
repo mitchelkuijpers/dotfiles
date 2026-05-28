@@ -16,6 +16,11 @@ _: {
       alias nd "nix develop path:."
       alias nb "nix build path:."
       alias nr "nix run path:."
+
+
+      # Needed for testcontainers: https://java.testcontainers.org/supported_docker_environment/
+      set -gx TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE /var/run/docker.sock
+      set -gx TESTCONTAINERS_HOST_OVERRIDE (colima ls -j | jq -r '.address')
     '';
   };
 }

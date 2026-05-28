@@ -1,6 +1,9 @@
 {pkgs, ...}: let
   useVzRosetta = pkgs.stdenv.hostPlatform.isDarwin && pkgs.stdenv.hostPlatform.isAarch64;
-  colimaVmType = if useVzRosetta then "vz" else "qemu";
+  colimaVmType =
+    if useVzRosetta
+    then "vz"
+    else "qemu";
 in {
   services.colima = {
     enable = true;
@@ -17,6 +20,9 @@ in {
         arch = "host";
         vmType = colimaVmType;
         rosetta = useVzRosetta;
+        network = {
+          address = true;
+        };
       };
     };
   };

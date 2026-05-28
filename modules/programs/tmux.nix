@@ -26,6 +26,10 @@
       set -g default-shell "${pkgs.fish}/bin/fish"
       set -g default-command ""
 
+      # For pi taken from: https://pi.dev/docs/latest/tmux
+      set -g extended-keys on
+      set -g extended-keys-format csi-u
+
       bind-key -T copy-mode-vi v send -X begin-selection
       bind-key -T copy-mode-vi y send -X copy-selection
 
