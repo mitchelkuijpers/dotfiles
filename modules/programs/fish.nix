@@ -1,6 +1,30 @@
-_: {
+{
+  pkgs,
+  ...
+}: {
   programs.fish = {
     enable = true;
+    plugins = [
+    {
+      name = "z";
+      src = pkgs.fetchFromGitHub {
+        owner = "jethrokuan";
+        repo = "z";
+        rev = "26a50962bc68f5cb60fc488ee008b3d4d5be75f4";
+        sha256 = "4+58sbZf852HImPqWmlJUtuZI0464nx+SyvZbrtsG+E=";
+      };
+    }
+
+    {
+      name = "fzf";
+      src = pkgs.fetchFromGitHub {
+        owner = "jethrokuan";
+        repo = "fzf";
+        rev = "479fa67d7439b23095e01b64987ae79a91a4e283";
+        sha256 = "28QW/WTLckR4lEfHv6dSotwkAKpNJFCShxmKFGQQ1Ew=";
+      };
+    }
+    ];
     interactiveShellInit = ''
       set fish_greeting
       fish_vi_key_bindings
