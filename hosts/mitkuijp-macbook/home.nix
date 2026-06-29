@@ -1,7 +1,10 @@
 _: {
   imports = [
     ../../profiles/dev.nix
+    ../../secrets/default.nix
   ];
+
+  mySecrets.enable = true;
 
   home = {
     username = "mitkuijp";
