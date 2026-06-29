@@ -14,8 +14,9 @@ in {
       setDockerHost = true;
 
       settings = {
+        runtime = "docker";
         cpu = 6;
-        disk = 100;
+        disk = 40;
         memory = 8;
         arch = "host";
         vmType = colimaVmType;
