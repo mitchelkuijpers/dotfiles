@@ -51,6 +51,9 @@ in {
       # AI
       ansible
 
+      #Avisi Cloud
+      kubernetes-helm
+
       # Entrance
       kubectl
       awscli2

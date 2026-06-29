@@ -7,6 +7,7 @@ in {
     LANG = "en_US.UTF-8";
     CONNECT__BASEURL = "https://mitchel.eu.ngrok.io";
     PNPM_HOME = pnpmHome;
+    KUBECONFIG = "${config.xdg.dataHome}/.kube/acloud_avisi-solution-studio-6oct_playhouses_playhouse-mitchel_47973c8f";
   };
 
   home.sessionPath = [
