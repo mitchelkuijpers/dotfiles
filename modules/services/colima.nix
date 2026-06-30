@@ -1,4 +1,8 @@
-{pkgs, ...}: let
+{
+  pkgs,
+  config,
+  ...
+}: let
   useVzRosetta = pkgs.stdenv.hostPlatform.isDarwin && pkgs.stdenv.hostPlatform.isAarch64;
   colimaVmType =
     if useVzRosetta
@@ -24,6 +28,13 @@ in {
         network = {
           address = true;
         };
+
+        mounts = [
+          {
+            location = config.home.homeDirectory;
+            writable = true;
+          }
+        ];
       };
     };
   };
