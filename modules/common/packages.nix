@@ -33,7 +33,6 @@ in {
       wget
       yq
       zig
-      mise
       terraform
       terraform-ls
       gnugrep
@@ -53,6 +52,9 @@ in {
 
       #Avisi Cloud
       kubernetes-helm
+
+      # LLM Sandboxing
+      nono
 
       # Entrance
       kubectl

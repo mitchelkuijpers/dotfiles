@@ -19,7 +19,7 @@ in {
 
       settings = {
         runtime = "docker";
-        cpu = 6;
+        cpu = 12;
         disk = 40;
         memory = 8;
         arch = "host";

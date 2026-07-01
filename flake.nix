@@ -10,6 +10,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs-mise.url = "github:NixOS/nixpkgs/64c08a7ca051951c8eae34e3e3cb1e202fe36786";
     llm-agents.url = "github:numtide/llm-agents.nix";
 
     home-manager = {
