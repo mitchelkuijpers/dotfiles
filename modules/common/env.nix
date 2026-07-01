@@ -1,5 +1,5 @@
 {config, ...}: let
-  pnpmHome = "${config.xdg.dataHome}/.local/share/pnpm";
+  pnpmHome = "${config.xdg.dataHome}/pnpm";
 in {
   home.sessionVariables = {
     EDITOR = "nvim";
