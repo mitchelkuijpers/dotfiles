@@ -55,6 +55,7 @@ in {
 
       # LLM Sandboxing
       nono
+      glab
 
       # Entrance
       kubectl
