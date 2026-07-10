@@ -1,5 +1,6 @@
 {
   pkgs,
+  pkgsPinned,
   inputs,
   ...
 }: let
@@ -36,7 +37,7 @@ in {
       terraform
       terraform-ls
       gnugrep
-      terminal-notifier
+      pkgsPinned.terminal-notifier
       skopeo
 
       #Fish
@@ -53,8 +54,6 @@ in {
       #Avisi Cloud
       kubernetes-helm
 
-      # LLM Sandboxing
-      nono
       glab
 
       # Entrance
@@ -92,6 +91,6 @@ in {
 
       # Solution Studio
       ffmpeg
-      whisper-cpp
+      pkgsPinned.whisper-cpp
     ]);
 }

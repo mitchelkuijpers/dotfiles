@@ -1,6 +1,7 @@
-_: {
+{pkgsPinned, ...}: {
   programs.starship = {
     enable = true;
+    package = pkgsPinned.starship;
     enableFishIntegration = true;
     settings = {
       # add_newline = false;
