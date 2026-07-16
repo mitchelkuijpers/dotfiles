@@ -8,13 +8,13 @@ _: {
     settings = {
       # Show first-run notification setup on startup.
       # Missing also shows onboarding; set false after you've chosen.
-      # onboarding = true;
+      onboarding = false;
 
       theme = {
         # Built-in themes: catppuccin, terminal, tokyo-night, dracula, nord,
         #                  gruvbox, one-dark, solarized, kanagawa, rose-pine,
         #                  vesper
-        # name = "catppuccin";
+        name = "catppuccin";
 
         # Follow host terminal light/dark appearance and switch Herdr UI themes.
         # auto_switch = false;
@@ -43,7 +43,7 @@ _: {
         # CWD policy for new panes, tabs, and workspaces when no explicit --cwd is provided.
         # Use "follow" to inherit the source pane/workspace, "home" for $HOME,
         # "current" for Herdr's process directory, or a fixed path such as "~/Projects".
-        # new_cwd = "follow";
+        new_cwd = "follow";
       };
 
       update = {
@@ -60,7 +60,7 @@ _: {
 
       keys = {
         # Prefix key to enter prefix mode (default: "ctrl+b")
-        # prefix = "ctrl+b";
+        prefix = "ctrl+a";
 
         # Prefix-mode actions
         # help = "prefix+?";
