@@ -34,6 +34,7 @@ Run from repo root:
 3. Do not casually bump `home.stateVersion`.
 4. Preserve compatibility shims unless explicitly asked (example: tmux compatibility file in `modules/programs/tmux.nix`).
 5. Keep comments that explain non-obvious behavior.
+6. New `.nix` files must be `git add`-ed before `nix build`/`nix eval` can see them (flakes only read git-tracked files).
 
 ## Package management conventions
 
