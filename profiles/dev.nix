@@ -8,5 +8,6 @@ _: {
     ../modules/programs/direnv.nix
     ../modules/programs/fzf.nix
     ../modules/programs/starship.nix
+    ../modules/programs/herdr.nix
   ];
 }
