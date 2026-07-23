@@ -11,7 +11,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-pinned.url = "github:NixOS/nixpkgs/7a1a64774a5fd0b0cd39ac95d0e170ace8b266a0";
-    nixpkgs-mise.url = "github:NixOS/nixpkgs/64c08a7ca051951c8eae34e3e3cb1e202fe36786";
+    nixpkgs-mise.url = "github:NixOS/nixpkgs/e839d2252707ca85e2c903285962b02b8c1a89f0";
     llm-agents.url = "github:numtide/llm-agents.nix";
 
     home-manager = {
