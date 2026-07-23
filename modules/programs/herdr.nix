@@ -52,7 +52,7 @@ _: {
         # channel = "stable";
 
         # Check herdr.dev for new Herdr versions in the background.
-        # version_check = true;
+        version_check = false;
 
         # Check herdr.dev for remote agent-detection manifest updates in the background.
         # manifest_check = true;
