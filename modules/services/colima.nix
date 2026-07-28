@@ -11,7 +11,7 @@
     else "qemu";
 in {
   services.colima = {
-    enable = false;
+    enable = true;
     package = pkgsPinned.colima;
 
     profiles.default = {

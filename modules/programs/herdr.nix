@@ -106,8 +106,8 @@ _: {
         # toggle_sidebar = "prefix+b";
 
         # Navigate-mode movement (active while navigate mode is open).
-        # navigate_workspace_up = "up";
-        # navigate_workspace_down = "down";
+        navigate_workspace_up = "k";
+        navigate_workspace_down = "j";
         # navigate_pane_left = "h";
         # navigate_pane_down = "j";
         # navigate_pane_up = "k";
