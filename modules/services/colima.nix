@@ -1,6 +1,5 @@
 {
   pkgs,
-  pkgsPinned,
   config,
   ...
 }: let
@@ -12,7 +11,7 @@
 in {
   services.colima = {
     enable = true;
-    package = pkgsPinned.colima;
+    package = pkgs.colima;
 
     profiles.default = {
       isService = true;

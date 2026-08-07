@@ -4,22 +4,12 @@
     plugins = [
       {
         name = "z";
-        src = pkgs.fetchFromGitHub {
-          owner = "jethrokuan";
-          repo = "z";
-          rev = "26a50962bc68f5cb60fc488ee008b3d4d5be75f4";
-          sha256 = "4+58sbZf852HImPqWmlJUtuZI0464nx+SyvZbrtsG+E=";
-        };
+        src = pkgs.fishPlugins.z;
       }
 
       {
         name = "fzf";
-        src = pkgs.fetchFromGitHub {
-          owner = "jethrokuan";
-          repo = "fzf";
-          rev = "479fa67d7439b23095e01b64987ae79a91a4e283";
-          sha256 = "28QW/WTLckR4lEfHv6dSotwkAKpNJFCShxmKFGQQ1Ew=";
-        };
+        src = pkgs.fishPlugins.fzf;
       }
     ];
     interactiveShellInit = ''
@@ -39,9 +29,8 @@
       alias nr "nix run path:."
 
 
-      # Needed for testcontainers: https://java.testcontainers.org/supported_docker_environment/
-      set -gx TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE /var/run/docker.sock
-      # set -gx TESTCONTAINERS_HOST_OVERRIDE (colima ls -j | jq -r '.address')
+      # Testcontainers uses DOCKER_HOST, which is set by the colima module (setDockerHost).
+      # See https://java.testcontainers.org/supported_docker_environment/
     '';
   };
 }

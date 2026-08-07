@@ -1,6 +1,5 @@
 {
   pkgs,
-  pkgsPinned,
   inputs,
   ...
 }: let
@@ -37,7 +36,7 @@ in {
       terraform
       terraform-ls
       gnugrep
-      pkgsPinned.terminal-notifier
+      terminal-notifier
       skopeo
 
       #Fish
@@ -91,6 +90,6 @@ in {
 
       # Solution Studio
       ffmpeg
-      pkgsPinned.whisper-cpp
+      whisper-cpp
     ]);
 }
