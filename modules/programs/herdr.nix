@@ -1,6 +1,11 @@
-_: {
+{
+  inputs,
+  pkgs,
+  ...
+}: {
   programs.herdr = {
     enable = true;
+    package = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.herdr;
 
     # Configuration written to $XDG_CONFIG_HOME/herdr/config.toml.
     # Full reference: https://herdr.dev/docs/configuration/
