@@ -121,13 +121,13 @@
         # Custom commands use the same binding syntax.
         # type = "shell" runs detached in the background.
         # type = "pane" opens a temporary pane and closes it when the command exits.
-        # command = [
-        #   {
-        #     key = "prefix+alt+g";
-        #     type = "pane";
-        #     command = "lazygit";
-        #   }
-        # ];
+        command = [
+          {
+            key = "cmd+r";
+            type = "plugin_action";
+            command = "persiyanov.reviewr.toggle";
+          }
+        ];
 
         # Legacy indexed shortcut config (still parsed for compatibility).
         # Prefer switch_tab, switch_workspace, and focus_agent for new configs.
