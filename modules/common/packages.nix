@@ -13,7 +13,6 @@ in {
     (with pkgs; [
       cmake
       coreutils
-      deno
       fd
       gh
       git-crypt
@@ -27,7 +26,6 @@ in {
       sd
       shellcheck
       tmuxinator
-      zellij
       tree
       uv
       wget
@@ -67,7 +65,6 @@ in {
       qemu
 
       # Node
-      yarn
       pnpm
       nodejs_24
       bun
@@ -79,7 +76,6 @@ in {
       bbin
       clj-kondo
       cljfmt
-      polylith
 
       # Java (LTS)
       jdk21
