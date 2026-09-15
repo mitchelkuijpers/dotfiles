@@ -1,6 +1,18 @@
 {pkgs, ...}: {
   programs.fish = {
     enable = true;
+
+    # Abbreviations expand on Enter, so any shell syntax (env vars, flags) is fine.
+    shellAbbrs = {
+      # Docker per colima profile: colima registers one Docker context per profile.
+      # "colima" is the default profile's context (set active by the colima module);
+      # the agent profile's daemon is reachable via its "colima-agent" context.
+      dkd = "docker --context colima";
+      dka = "docker --context colima-agent";
+
+      # pi inside the nono sandbox (profile pi), e.g. for untrusted worktrees.
+      nono-pi = "HERDR_AGENT=pi nono run --profile pi --allow-cwd -- pi";
+    };
     plugins = [
       {
         name = "z";
