@@ -37,6 +37,9 @@ in {
       terminal-notifier
       skopeo
 
+      # Bitwarden secrets manager CLI
+      bws
+
       #Fish
       fishPlugins.bass
       fishPlugins.z

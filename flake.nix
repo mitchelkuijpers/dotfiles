@@ -28,10 +28,7 @@
     mkPkgs = src:
       import src {
         inherit system;
-        config.allowUnfreePredicate = pkg:
-          builtins.elem (src.lib.getName pkg) [
-            "terraform"
-          ];
+        config.allowUnfree = true;
       };
 
     pkgs = mkPkgs nixpkgs;
