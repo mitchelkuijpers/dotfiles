@@ -164,9 +164,12 @@
         # agent_panel_sort = "spaces";  # "spaces" or "priority"
         # accent = "cyan";              # hex, named color, or rgb(r,g,b)
 
+        # Compact color dots or distinct static symbols for agent states.
+        status_indicators = "symbols";
+
         toast = {
           # off = disable, herdr = in-app, terminal = outer terminal, system = OS service
-          # delivery = "off";
+          delivery = "herdr";
           # delay_seconds = 1;
           # herdr.position = "bottom-right";
           # clipboard = {
