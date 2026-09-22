@@ -10,11 +10,17 @@
       dkd = "docker --context colima";
       dka = "docker --context colima-agent";
 
-      # pi inside the nono sandbox (profile pi), e.g. for untrusted worktrees.
-      nono-pi = "HERDR_AGENT=pi nono run --profile pi --allow-cwd -- pi";
+      # pi and opencode run inside the nono sandbox by default (untrusted worktrees).
+      # Fish does not re-expand abbreviations, so the trailing `pi`/`opencode` here
+      # resolves to the real binary rather than looping back into this abbreviation.
+      pi = "HERDR_AGENT=pi nono run --profile pi --allow-cwd -- pi";
+      opencode = "HERDR_AGENT=opencode nono run --profile opencode --allow-cwd -- opencode";
 
-      # opencode inside the nono sandbox (profile opencode), e.g. for untrusted worktrees.
-      nono-opencode = "HERDR_AGENT=opencode nono run --profile opencode --allow-cwd -- opencode";
+      # Escape hatches: run the real binaries unsandboxed. Abbreviation expansions
+      # are not re-scanned, so the trailing `pi`/`opencode` here resolves to the real
+      # binary. (Typing `command pi` by hand does NOT bypass the `pi` abbreviation.)
+      pi-unsafe = "command pi";
+      opencode-unsafe = "command opencode";
     };
     plugins = [
       {
