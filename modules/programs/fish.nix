@@ -12,6 +12,9 @@
 
       # pi inside the nono sandbox (profile pi), e.g. for untrusted worktrees.
       nono-pi = "HERDR_AGENT=pi nono run --profile pi --allow-cwd -- pi";
+
+      # opencode inside the nono sandbox (profile opencode), e.g. for untrusted worktrees.
+      nono-opencode = "HERDR_AGENT=opencode nono run --profile opencode --allow-cwd -- opencode";
     };
     plugins = [
       {
