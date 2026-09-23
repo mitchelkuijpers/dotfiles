@@ -8,6 +8,8 @@
     codex
     opencode
   ];
+
+  maki = inputs.maki.packages.${pkgs.stdenv.hostPlatform.system}.default;
 in {
   home.packages =
     (with pkgs; [
@@ -90,5 +92,8 @@ in {
       # Solution Studio
       ffmpeg
       whisper-cpp
+
+      # AI coding agent
+      maki
     ]);
 }

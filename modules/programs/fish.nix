@@ -10,17 +10,22 @@
       dkd = "docker --context colima";
       dka = "docker --context colima-agent";
 
-      # pi and opencode run inside the nono sandbox by default (untrusted worktrees).
-      # Fish does not re-expand abbreviations, so the trailing `pi`/`opencode` here
-      # resolves to the real binary rather than looping back into this abbreviation.
+      # pi, opencode and maki run inside the nono sandbox by default (untrusted
+      # worktrees). Fish does not re-expand abbreviations, so the trailing
+      # `pi`/`opencode`/`maki` here resolves to the real binary rather than looping
+      # back into this abbreviation. maki runs with `--yolo` (skip permission prompts)
+      # because the nono profile already constrains what it can touch.
       pi = "HERDR_AGENT=pi nono run --profile pi --allow-cwd -- pi";
       opencode = "HERDR_AGENT=opencode nono run --profile opencode --allow-cwd -- opencode";
+      maki = "HERDR_AGENT=maki nono run --profile maki --allow-cwd -- maki --yolo";
 
       # Escape hatches: run the real binaries unsandboxed. Abbreviation expansions
-      # are not re-scanned, so the trailing `pi`/`opencode` here resolves to the real
-      # binary. (Typing `command pi` by hand does NOT bypass the `pi` abbreviation.)
+      # are not re-scanned, so the trailing `pi`/`opencode`/`maki` here resolves to
+      # the real binary. (Typing `command pi` by hand does NOT bypass the `pi`
+      # abbreviation.)
       pi-unsafe = "command pi";
       opencode-unsafe = "command opencode";
+      maki-unsafe = "command maki";
     };
     plugins = [
       {

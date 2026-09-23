@@ -11,6 +11,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     llm-agents.url = "github:numtide/llm-agents.nix";
+    maki.url = "github:tontinton/maki";
 
     home-manager = {
       url = "github:nix-community/home-manager";
