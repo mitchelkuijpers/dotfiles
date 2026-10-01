@@ -10,7 +10,7 @@
     };
 
     signing = {
-      key = "${config.home.homeDirectory}/.ssh/id_ed25519.pub";
+      key = "${config.home.homeDirectory}/.ssh/avisi.pub";
       signByDefault = true;
     };
 
