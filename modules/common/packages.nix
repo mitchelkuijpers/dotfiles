@@ -6,10 +6,27 @@
   llmAgentsPackages = with inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}; [
     tuicr
     codex
-    opencode
+    opencode2
+    terminal-browser
   ];
 
   maki = inputs.maki.packages.${pkgs.stdenv.hostPlatform.system}.default;
+
+  nonoPi = pkgs.writeShellScriptBin "nono-pi" ''
+    exec env HERDR_AGENT=pi nono run --silent --profile pi --allow-cwd -- pi "$@"
+  '';
+
+  nonoOpencode = pkgs.writeShellScriptBin "nono-opencode" ''
+    exec env SHELL=/bin/bash HERDR_AGENT=opencode nono run --silent --profile opencode --allow-cwd -- opencode2 --auto "$@"
+  '';
+
+  nonoMaki = pkgs.writeShellScriptBin "nono-maki" ''
+    exec env HERDR_AGENT=maki nono run --silent --profile maki --allow-cwd -- maki --yolo "$@"
+  '';
+
+  nonoOmp = pkgs.writeShellScriptBin "nono-omp" ''
+    exec env HERDR_AGENT=omp nono run --silent --profile omp-local --allow-cwd -- omp --approval-mode=yolo "$@"
+  '';
 in {
   home.packages =
     (with pkgs; [
@@ -65,6 +82,7 @@ in {
       k9s
     ])
     # AI coding agents packaged outside nixpkgs.
+    ++ [nonoPi nonoOpencode nonoMaki nonoOmp]
     ++ llmAgentsPackages
     ++ (with pkgs; [
       qemu
