@@ -20,6 +20,31 @@ Do not call `chromium.launch()`, do not start Chrome/Firefox processes.
 | `127.0.0.1:13306`   | Dedicated Chrome (CDP)               | `chromium.connectOverCDP("ws://127.0.0.1:13306")`                       |
 | `127.0.0.1:3000`    | Playwright run-server (`1.63.0`)     | `<browserType>.connect("ws://127.0.0.1:3000/")` — chromium, firefox, webkit |
 
+Both endpoints are independent and use different Playwright versions: the CDP
+path (`@playwright/mcp`) has no client-version requirement, while the `:3000`
+run-server rejects mismatched clients with HTTP 428.
+
+### Playwright MCP (pi)
+
+pi is configured with a `playwright` MCP server (`~/.pi/agent/mcp.json`, an
+entry in `modules/programs/pi.nix`) that runs `@playwright/mcp` with
+`--cdp-endpoint http://127.0.0.1:13306`. It drives the **same** agent Chrome
+you see (tabs, cookies, logins) rather than spawning a browser — required,
+per rule zero. Its exposure is `codemode`, so the `browser_*` tools do not
+appear in the tool list; call them from a `codemode` script. Each server tool
+is `mcp__<server>__<tool>`, i.e. `tools.mcp__playwright__browser_navigate`,
+`tools.mcp__playwright__browser_snapshot`, `tools.mcp__playwright__browser_click`.
+Use `searchTools("browser")` or `describeNamespace("mcp__playwright")` inside
+a script to discover them.
+
+The server is launched via `~/.local/bin/agent-playwright-mcp`, which picks
+`pnpm`/`npx`/`bun` and keeps install output off stdout (MCP speaks JSON-RPC
+over stdio). It pins `@playwright/mcp@0.0.83` — **bump that pin in the script
+AND here together** (the `:3000` run-server pin at `1.63.0` is separate).
+
+If the server shows as disconnected, start the host browser with
+`agent-browser` first (see health checks), then reconnect via `/mcp`.
+
 Guidelines:
 
 - **Automation scripts** (scraping, tests, poking around): prefer the
@@ -29,7 +54,8 @@ Guidelines:
   attaching to existing pages): use CDP on `:13306`.
 - Playwright clients **must match the server version** (`1.63.0`) or the
   server rejects them with HTTP 428. Pin with `pnpm add -D playwright@1.63.0`
-  or `pnpm dlx playwright@1.63.0 ...`.
+  or `pnpm dlx playwright@1.63.0 ...`. This applies to the `:3000`
+  run-server only — the MCP server below talks CDP and has its own version.
 
 Health checks:
 

@@ -2,3 +2,6 @@ result
 result-*
 git-crypt-key-backup
 git-crypt-key-backup.b64
+
+# Playwright MCP snapshot output
+.playwright-mcp/

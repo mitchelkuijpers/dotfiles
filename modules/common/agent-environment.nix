@@ -48,6 +48,38 @@
       '';
     };
 
+    # Launcher for the Playwright MCP server (used by pi's ~/.pi/agent/mcp.json).
+    # Prefers pnpm, falls back to npx then bun, so the MCP server still starts if
+    # a given package runner is missing from PATH. Install noise is kept off
+    # stdout: MCP speaks JSON-RPC over stdio, so a stray log line on stdout
+    # corrupts the protocol. VERSION is pinned; bump it together with the skill.
+    ".local/bin/agent-playwright-mcp" = {
+      executable = true;
+      text = ''
+        #!/usr/bin/env bash
+        # Runs @playwright/mcp attached to the agent Chrome CDP endpoint.
+        set -euo pipefail
+        VERSION=0.0.83
+        CDP_ENDPOINT="''${AGENT_BROWSER_CDP:-http://127.0.0.1:13306}"
+        PKG="@playwright/mcp@$VERSION"
+        ARGS=(--cdp-endpoint "$CDP_ENDPOINT" "$@")
+
+        if command -v pnpm >/dev/null 2>&1; then
+          exec pnpm --silent dlx "$PKG" "''${ARGS[@]}"
+        elif command -v npx >/dev/null 2>&1; then
+          # npm's default cache is ~/.npm, which nono mounts read-only; point it
+          # at a writable XDG cache unless the user already chose one.
+          export npm_config_cache="''${npm_config_cache:-''${XDG_CACHE_HOME:-$HOME/.cache}/npm}"
+          exec npx -y "$PKG" "''${ARGS[@]}"
+        elif command -v bun >/dev/null 2>&1; then
+          exec bun x "$PKG" "''${ARGS[@]}"
+        else
+          echo "agent-playwright-mcp: need one of pnpm, npx, or bun on PATH" >&2
+          exit 127
+        fi
+      '';
+    };
+
     ".local/bin/agent-playwright" = {
       executable = true;
       text = ''
