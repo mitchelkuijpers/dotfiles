@@ -5,6 +5,7 @@
 }: let
   llmAgentsPackages = with inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}; [
     tuicr
+    hunk
     codex
     opencode2
     terminal-browser

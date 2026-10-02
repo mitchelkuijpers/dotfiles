@@ -123,9 +123,13 @@
         # type = "pane" opens a temporary pane and closes it when the command exits.
         command = [
           {
+            # Open a review pane (Cmd+R). type = "pane" opens it zoomed; the pane
+            # lives until Hunk exits (press q), so the session stays registered for
+            # `hunk session ...`. Use the zoom key to go side by side with an agent.
             key = "cmd+r";
-            type = "plugin_action";
-            command = "persiyanov.reviewr.toggle";
+            type = "pane";
+            command = "hunk diff --watch";
+            description = "review changes with hunk";
           }
         ];
 
