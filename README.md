@@ -22,6 +22,7 @@ This repository manages local developer setup with Home Manager + Nix flakes.
 - `make lock`: re-encrypt secrets with `git-crypt lock`.
 - `make export-key`: export the git-crypt key as base64 for backup.
 - `make import-key`: restore the git-crypt key from a base64 backup.
+- `make vm VM=<ssh-dest>`: bootstrap or update an agent VM (Ubuntu, e.g. exe.dev) with the same tooling. See `plans/agent-vms.md`.
 
 ## Adding dependencies
 
