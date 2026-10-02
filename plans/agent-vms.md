@@ -1,6 +1,8 @@
 # Agent VMs via Nix
 
-Status: decisions resolved (Hunk review round 1), architecture revised.
+Status: bootstrap validated end-to-end in a local aarch64 Ubuntu container
+(via colima Docker). Phases 1–3 done; remaining: run against a real exe.dev
+VM, polish.
 Owners: mitkuijp + pi
 
 ## Goal
@@ -94,9 +96,14 @@ Move to a new darwin-only host module under `hosts/mitkuijp-macbook/`:
 
 1. `rsync` the repo to `~/dotfiles` on the VM (plain-path flake; safe even
    with locked git-crypt secrets since agent hosts never read them).
-2. ssh: install Nix if absent — Determinate Systems installer
-   (`curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install`):
-   one command, flakes enabled by default, easy uninstall.
+2. ssh: install Nix if absent — Determinate Systems installer, one command,
+   flakes enabled by default: `... | sh -s -- install linux --no-confirm`
+   (add `--init none` + manual nix-daemon when there's no systemd, e.g.
+   containers). Then trust the numtide cache in `/etc/nix/nix.conf`
+   (extra-substituters + extra-trusted-public-keys) — dogfooding showed the
+   llm-agents packages otherwise build from source, because flake nixConfig
+   public keys are ignored for untrusted users. On the Mac the same keys
+   live in ~/.local/share/nix/trusted-settings.json.
 3. ssh: `cd ~/dotfiles && nix run . -- switch --flake .#exedev[_-arm] -b backup`
    (config chosen via `uname -m`: x86_64 → `exedev`, arm64/aarch64 → `exedev-arm`).
 4. ssh: make fish the login shell — append `~/.nix-profile/bin/fish` to
@@ -112,17 +119,19 @@ script, cutting bootstrap to seconds.
 
 ## Phases
 
-1. **Portability guards** — refactor above; verify `make fmt lint build`
-   and `make switch` is a no-op on the Mac.
-2. **Agent profile + exedev host + per-system flake** — validate with
-   `nix flake check` and pure evaluation:
-   `nix eval .#homeConfigurations.exedev.activationPackage.drvPath`
-   for both linux systems (evaluation works from the Mac; building doesn't,
-   and per Decision 2 it doesn't need to).
-3. **Bootstrap + dogfood** — create an exe.dev VM, run bootstrap, ssh in,
-   run pi inside; fix what breaks (locales, PATH, missing glibc bits).
-4. **Polish** — Makefile targets (`make vm-setup`, `make vm-switch`),
-   README section, optional custom exe.dev image.
+1. **Portability guards** ✅ — refactor done; generation verified
+   byte-identical on the Mac (except pi package-list reordering).
+   NOTE: `make switch` itself still needs to be run outside the nono
+   sandbox (it writes ~/.local/state/nix + dotfiles across $HOME).
+2. **Agent profile + exedev host + per-system flake** ✅ — all three
+   homeConfigurations evaluate from the Mac.
+3. **Bootstrap + dogfood** ✅ (local) — `scripts/bootstrap-vm.sh` validated
+   end-to-end in a clean Ubuntu 24.04 aarch64 container: Nix install →
+   numtide cache trust → `home-manager switch` → fish login shell.
+   Remaining: first real exe.dev VM (`ssh exe.dev new --name agent-test`,
+   then `make vm VM=agent-test.exe.xyz`).
+4. **Polish** — Makefile target ✅ (`make vm`), README section ✅.
+   Remaining: optional custom exe.dev image with Nix preinstalled.
 
 ## Validation checklist (per AGENTS.md)
 
@@ -137,6 +146,8 @@ script, cutting bootstrap to seconds.
 
 - Username on the local Ubuntu VMs — if not `exedev`, add another host
   entry later (`homeConfigurations.<user>`).
+- exe.dev VMs have sudo without password? (bootstrap assumes NOPASSWD or
+  interactive sudo; verify on first real run).
 
 ## Settled details
 
