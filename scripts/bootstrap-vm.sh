@@ -2,7 +2,9 @@
 # Bootstrap an agent VM (exe.dev or any Ubuntu VM with ssh + sudo) with this
 # flake's tooling. Idempotent: safe to re-run for updates.
 #
-#   ./scripts/bootstrap-vm.sh <ssh-dest>      e.g. my-vm.exe.xyz
+#   ./scripts/bootstrap-vm.sh <ssh-dest> [config]
+#     e.g. ./scripts/bootstrap-vm.sh my-vm.exe.xyz        (auto: uname -m)
+#          ./scripts/bootstrap-vm.sh box@shellbox.dev shellbox
 #
 # What it does on the VM (as the ssh'd user):
 #   1. rsync this repo to ~/dotfiles (plain path flake; .git excluded so the
@@ -16,8 +18,9 @@
 set -euo pipefail
 
 dest="${1:-}"
+cfg_override="${2:-}"
 if [[ -z "$dest" ]]; then
-  echo "usage: $0 <ssh-dest>   (e.g. $0 my-vm.exe.xyz)" >&2
+  echo "usage: $0 <ssh-dest> [config]   (e.g. $0 my-vm.exe.xyz)" >&2
   exit 1
 fi
 
@@ -28,17 +31,27 @@ ssh "$dest" 'mkdir -p ~/dotfiles'
 rsync -a --delete --exclude .git/ "$repo_root/" "$dest:dotfiles/"
 
 echo "==> bootstrapping $dest"
-ssh "$dest" 'bash -se' <<'REMOTE'
+ssh "$dest" bash -se -- "$cfg_override" <<'REMOTE'
 set -euo pipefail
 
-arch=$(uname -m)
-case "$arch" in
-  x86_64)        cfg=exedev ;;
-  aarch64|arm64) cfg=exedev-arm ;;
-  *) echo "unsupported arch: $arch" >&2; exit 1 ;;
-esac
+user_name="$(id -un)"
+cfg="${1:-}"
+if [ -z "$cfg" ]; then
+  # Map (user, arch) to a flake config; extend when adding hosts.
+  case "$user_name:$(uname -m)" in
+    exedev:x86_64)                cfg=exedev ;;
+    exedev:aarch64|exedev:arm64)  cfg=exedev-arm ;;
+    root:x86_64)                  cfg=shellbox ;;
+    *) echo "no config for $user_name:$(uname -m) - pass one explicitly" >&2; exit 1 ;;
+  esac
+fi
 has_systemd=$([ -d /run/systemd/system ] && echo yes || echo no)
-echo "arch=$arch config=$cfg systemd=$has_systemd"
+SUDO=""
+[ "$(id -u)" -ne 0 ] && SUDO="sudo"
+# home-manager's activation script references $USER directly; raw shells
+# (docker exec, cron) may not have it.
+export USER="${USER:-$user_name}"
+echo "user=$user_name config=$cfg systemd=$has_systemd"
 
 if ! [ -x /nix/var/nix/profiles/default/bin/nix ]; then
   echo "--> installing Nix (Determinate installer)"
@@ -57,15 +70,15 @@ if ! grep -q cache.numtide.com /etc/nix/nix.conf 2>/dev/null; then
   echo "--> trusting numtide cache system-wide"
   echo 'extra-substituters = https://cache.numtide.com
 extra-trusted-public-keys = niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g=' \
-    | sudo tee -a /etc/nix/nix.conf >/dev/null
+    | $SUDO tee -a /etc/nix/nix.conf >/dev/null
   if [ "$has_systemd" = yes ]; then
-    sudo systemctl restart nix-daemon
+    $SUDO systemctl restart nix-daemon
   fi
 fi
 
 if [ "$has_systemd" = no ] && ! pgrep -x nix-daemon >/dev/null 2>&1; then
   echo "--> starting nix-daemon (no systemd)"
-  sudo sh -c 'nohup /nix/var/nix/profiles/default/bin/nix-daemon >/var/log/nix-daemon.log 2>&1 &'
+  $SUDO sh -c 'nohup /nix/var/nix/profiles/default/bin/nix-daemon >/var/log/nix-daemon.log 2>&1 &'
   sleep 3
 fi
 
@@ -78,11 +91,11 @@ nix run . -- switch --flake ".#$cfg" -b backup
 
 fish_path="$HOME/.nix-profile/bin/fish"
 if [ -x "$fish_path" ]; then
-  grep -qxF "$fish_path" /etc/shells 2>/dev/null || echo "$fish_path" | sudo tee -a /etc/shells >/dev/null
-  current_shell=$(getent passwd "$USER" | cut -d: -f7)
+  grep -qxF "$fish_path" /etc/shells 2>/dev/null || echo "$fish_path" | $SUDO tee -a /etc/shells >/dev/null
+  current_shell=$(getent passwd "$user_name" | cut -d: -f7)
   if [ "$current_shell" != "$fish_path" ]; then
     echo "--> chsh to $fish_path"
-    sudo chsh -s "$fish_path" "$USER"
+    $SUDO chsh -s "$fish_path" "$user_name"
   fi
 fi
 

@@ -126,10 +126,24 @@ script, cutting bootstrap to seconds.
 2. **Agent profile + exedev host + per-system flake** ✅ — all three
    homeConfigurations evaluate from the Mac.
 3. **Bootstrap + dogfood** ✅ (local) — `scripts/bootstrap-vm.sh` validated
-   end-to-end in a clean Ubuntu 24.04 aarch64 container: Nix install →
-   numtide cache trust → `home-manager switch` → fish login shell.
-   Remaining: first real exe.dev VM (`ssh exe.dev new --name agent-test`,
-   then `make vm VM=agent-test.exe.xyz`).
+   end-to-end in clean Ubuntu 24.04 containers: Nix install → numtide cache
+   trust → `home-manager switch` → fish login shell. Validated flows:
+   non-root+sudo (exedev-arm), root+no-sudo with CFG override, $USER unset.
+   Remaining: first real VM (see below).
+
+## shellbox.dev (current provider, until exe.dev access)
+
+- Boxes are Azure `Standard_D8s_v3` (x86_64, KVM hardware VMs, no nesting).
+- Connect as root by box name: `ssh <name>@shellbox.dev` → `root@<name>`.
+- Flake config: `homeConfigurations.shellbox` (x86_64, root, /root).
+- Bootstrap: `make vm VM=<name>@shellbox.dev` (auto-detect: root+x86_64 →
+  shellbox config). Bootstrap is root-aware (no sudo installed on stock).
+- Untestable locally: x86_64 Docker under colima Rosetta crashes nix's
+  pty ioctls during the Determinate install — Mac-test artifact only.
+- shellbox also supports `create-from-oci` (linux/amd64 images only) —
+  relevant if the parked NixOS-userland idea (ideas/) is revived for it.
+- NOTE: shellbox boxes are auto-destroyed after ~24h offline;
+  re-bootstrap on wake if the box was rebuilt from the golden image.
 4. **Polish/image** — Makefile target ✅ (`make vm`), README section ✅.
    The exe.dev NixOS userland image idea is parked in
    `ideas/exedev-nixos-userland.md` — the Ubuntu + standalone

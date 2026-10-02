@@ -53,6 +53,10 @@
       # Linux agent VMs (exe.dev login user `exedev`); pick by `uname -m`.
       exedev = mkHome "x86_64-linux" ./hosts/exedev/home.nix;
       exedev-arm = mkHome "aarch64-linux" ./hosts/exedev/home.nix;
+
+      # shellbox.dev boxes: Azure x86_64 Ubuntu, ssh in as root
+      # (ssh <boxname>@shellbox.dev).
+      shellbox = mkHome "x86_64-linux" ./hosts/shellbox/home.nix;
     };
   };
 }

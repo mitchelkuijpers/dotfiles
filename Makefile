@@ -15,7 +15,7 @@ help:
 	@echo "  make lint    - Run static Nix linters (statix + deadnix)"
 	@echo "  make show    - Show flake outputs"
 	@echo "  make update  - Update flake.lock"
-	@echo "  make vm VM=<ssh-dest> - Bootstrap/update an agent VM (see plans/agent-vms.md)"
+	@echo "  make vm VM=<ssh-dest> [CFG=<flake-config>] - Bootstrap/update an agent VM (plans/agent-vms.md)"
 	@echo "  make unlock  - Decrypt secrets with git-crypt"
 	@echo "  make lock    - Re-encrypt secrets (git-crypt lock)"
 	@echo "  make export-key - Export git-crypt key as base64 for backup"
@@ -44,8 +44,8 @@ update:
 	nix flake update
 
 vm:
-	@test -n "$(VM)" || { echo "usage: make vm VM=<ssh-dest>  (e.g. make vm VM=my-vm.exe.xyz)"; exit 1; }
-	./scripts/bootstrap-vm.sh $(VM)
+	@test -n "$(VM)" || { echo "usage: make vm VM=<ssh-dest> [CFG=<flake-config>]"; echo "  e.g. make vm VM=my-vm.exe.xyz"; echo "       make vm VM=mybox@shellbox.dev CFG=shellbox"; exit 1; }
+	./scripts/bootstrap-vm.sh $(VM) $(CFG)
 
 unlock:
 	git-crypt unlock
