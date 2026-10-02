@@ -5,10 +5,13 @@
   ...
 }: let
   llmAgents = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
-  llmAgentsPackages = with llmAgents; [
-    tuicr
-    hunk
+  llmAgentsPackages = [llmAgents.hunk];
+  # Unused on agent VMs for now; several besides codex also skip numtide's
+  # cache and build from source on linux. Kept on the Mac.
+  llmAgentsDarwinOnly = with llmAgents; [
+    codex
     opencode2
+    tuicr
     terminal-browser
   ];
 
@@ -115,9 +118,7 @@ in {
       freelens-bin
     ])
     ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin workstationExtras
-    # codex is unused and every linux build compiles it from source
-    # (librusty_v8 + rust tree; numtide cache misses) — Mac only.
-    ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [llmAgents.codex]
+    ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin llmAgentsDarwinOnly
     ++ llmAgentsPackages
     ++ (with pkgs; [
       # Node
