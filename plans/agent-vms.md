@@ -130,8 +130,37 @@ script, cutting bootstrap to seconds.
    numtide cache trust → `home-manager switch` → fish login shell.
    Remaining: first real exe.dev VM (`ssh exe.dev new --name agent-test`,
    then `make vm VM=agent-test.exe.xyz`).
-4. **Polish** — Makefile target ✅ (`make vm`), README section ✅.
-   Remaining: optional custom exe.dev image with Nix preinstalled.
+4. **Polish/image** — Makefile target ✅ (`make vm`), README section ✅.
+   Remaining: exe.dev NixOS userland image (below).
+
+## Phase 4+ — exe.dev NixOS userland image
+
+Reference: <https://github.com/boldsoftware/exe.dev/blob/main/nix/> —
+exe.dev's own prototype: build a NixOS closure tarball inside a
+`nixos/nix` Docker container, ship it as an OCI image
+(`ssh exe.dev new --image=...`).
+
+Facts learned from their prototype:
+
+- exe.dev "VMs" are OCI userlands: exe.dev supplies kernel + exe-init
+  (NIC, routes, DNS, hostname, hosts) before PID 1 → NixOS must disable
+  DHCP/resolvconf/firewall/sshd and keep an `sshd` priv-sep user.
+- SSH keys are injected out-of-band (mutableUsers=false,
+  allowNoPasswordLogin); `LABEL exe.dev/login-user=exedev`.
+- exe-shell PATH wrapper so command-mode ssh sees the nix profile.
+
+Our take: `nixosConfigurations.exe-nixos` (aarch64 + x86_64) in the flake,
+home-manager as a NixOS module pointing at the same `hosts/exedev/home.nix`
+(genericLinux forced off — NixOS handles that). System bits adapted from
+their configuration.nix. Build & push via colima Docker
+(`scripts/build-exe-image.sh`, nixos/nix builder container). New VMs then
+boot fully configured; the Ubuntu bootstrap stays as the generic fallback.
+
+SECURITY: building a flake copies the source tree into the nix store →
+into the image. The repo dir contains decrypted secrets when git-crypt is
+unlocked → never push with unlocked git-crypt to a public registry
+(ttl.sh). Options: private registry (ghcr + `new --registry-auth`), or
+build with secrets excluded, or only ever push with git-crypt locked.
 
 ## Validation checklist (per AGENTS.md)
 
@@ -148,6 +177,9 @@ script, cutting bootstrap to seconds.
   entry later (`homeConfigurations.<user>`).
 - exe.dev VMs have sudo without password? (bootstrap assumes NOPASSWD or
   interactive sudo; verify on first real run).
+- Registry for the NixOS image: ttl.sh (public, 24h, zero setup — only
+  safe with git-crypt locked / no repo secrets in tree) vs private ghcr
+  (needs --registry-auth + a token).
 
 ## Settled details
 
