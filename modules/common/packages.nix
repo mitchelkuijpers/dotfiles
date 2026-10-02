@@ -23,6 +23,56 @@
   nonoOmp = pkgs.writeShellScriptBin "nono-omp" ''
     exec env HERDR_AGENT=omp nono run --silent --profile omp-local --allow-cwd -- omp --approval-mode=yolo "$@"
   '';
+  # Workstation/work extras that agent VMs deliberately skip, both to keep
+  # bootstraps lean (several GiB of downloads) and because they're useless
+  # there:
+  #   mkcert/bws        - secrets + local TLS are Mac-side
+  #   kubectl/k9s/helm  - no kubeconfig on VMs (Decision 3)
+  #   qemu              - shellbox/exe.dev don't allow nested virt
+  #   terraform/ansible - work infra tooling
+  #   jdk/clojure/etc   - Solution Studio languages
+  #   ffmpeg/whisper    - Solution Studio media pipeline
+  workstationExtras = with pkgs; [
+    mkcert
+    zig
+    terraform
+    terraform-ls
+
+    # Bitwarden secrets manager CLI
+    bws
+
+    # AI
+    ansible
+
+    # Avisi Cloud
+    kubernetes-helm
+
+    # Entrance
+    kubectl
+    awscli2
+    k9s
+
+    qemu
+
+    # Clojure
+    clojure
+    clojure-lsp
+    babashka
+    bbin
+    clj-kondo
+    cljfmt
+
+    # Java (LTS)
+    jdk21
+    maven
+
+    # Kotlin
+    kotlin
+
+    # Solution Studio
+    ffmpeg
+    whisper-cpp
+  ];
 in {
   home.packages =
     (with pkgs; [
@@ -35,7 +85,6 @@ in {
       gnutar
       go
       jq
-      mkcert
       neovim
       ripgrep
       sd
@@ -45,14 +94,8 @@ in {
       uv
       wget
       yq
-      zig
-      terraform
-      terraform-ls
       gnugrep
       skopeo
-
-      # Bitwarden secrets manager CLI
-      bws
 
       #Fish
       fishPlugins.bass
@@ -62,18 +105,7 @@ in {
       docker
       docker-credential-helpers
 
-      # AI
-      ansible
-
-      #Avisi Cloud
-      kubernetes-helm
-
       glab
-
-      # Entrance
-      kubectl
-      awscli2
-      k9s
     ])
     # macOS-only tools (nono sandbox wrappers reference ~/.config/nono
     # profiles that only exist on the Mac).
@@ -82,32 +114,12 @@ in {
       terminal-notifier
       freelens-bin
     ])
+    ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin workstationExtras
     ++ llmAgentsPackages
     ++ (with pkgs; [
-      qemu
-
       # Node
       pnpm
       nodejs_24
       bun
-
-      # Clojure
-      clojure
-      clojure-lsp
-      babashka
-      bbin
-      clj-kondo
-      cljfmt
-
-      # Java (LTS)
-      jdk21
-      maven
-
-      # Kotlin
-      kotlin
-
-      # Solution Studio
-      ffmpeg
-      whisper-cpp
     ]);
 }
