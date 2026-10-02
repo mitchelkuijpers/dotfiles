@@ -4,10 +4,10 @@
   inputs,
   ...
 }: let
-  llmAgentsPackages = with inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}; [
+  llmAgents = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
+  llmAgentsPackages = with llmAgents; [
     tuicr
     hunk
-    codex
     opencode2
     terminal-browser
   ];
@@ -115,6 +115,9 @@ in {
       freelens-bin
     ])
     ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin workstationExtras
+    # codex is unused and every linux build compiles it from source
+    # (librusty_v8 + rust tree; numtide cache misses) — Mac only.
+    ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [llmAgents.codex]
     ++ llmAgentsPackages
     ++ (with pkgs; [
       # Node
