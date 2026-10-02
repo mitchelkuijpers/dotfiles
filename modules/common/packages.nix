@@ -11,18 +11,12 @@
     terminal-browser
   ];
 
-  maki = inputs.maki.packages.${pkgs.stdenv.hostPlatform.system}.default;
-
   nonoPi = pkgs.writeShellScriptBin "nono-pi" ''
     exec env HERDR_AGENT=pi nono run --silent --profile pi --allow-cwd -- pi "$@"
   '';
 
   nonoOpencode = pkgs.writeShellScriptBin "nono-opencode" ''
     exec env SHELL=/bin/bash HERDR_AGENT=opencode nono run --silent --profile opencode --allow-cwd -- opencode2 --auto "$@"
-  '';
-
-  nonoMaki = pkgs.writeShellScriptBin "nono-maki" ''
-    exec env HERDR_AGENT=maki nono run --silent --profile maki --allow-cwd -- maki --yolo "$@"
   '';
 
   nonoOmp = pkgs.writeShellScriptBin "nono-omp" ''
@@ -83,7 +77,7 @@ in {
       k9s
     ])
     # AI coding agents packaged outside nixpkgs.
-    ++ [nonoPi nonoOpencode nonoMaki nonoOmp]
+    ++ [nonoPi nonoOpencode nonoOmp]
     ++ llmAgentsPackages
     ++ (with pkgs; [
       qemu
@@ -111,8 +105,5 @@ in {
       # Solution Studio
       ffmpeg
       whisper-cpp
-
-      # AI coding agent
-      maki
     ]);
 }
