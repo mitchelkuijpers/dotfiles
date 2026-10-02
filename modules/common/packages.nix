@@ -1,5 +1,6 @@
 {
   pkgs,
+  lib,
   inputs,
   ...
 }: let
@@ -48,7 +49,6 @@ in {
       terraform
       terraform-ls
       gnugrep
-      terminal-notifier
       skopeo
 
       # Bitwarden secrets manager CLI
@@ -73,11 +73,15 @@ in {
       # Entrance
       kubectl
       awscli2
-      freelens-bin
       k9s
     ])
-    # AI coding agents packaged outside nixpkgs.
-    ++ [nonoPi nonoOpencode nonoOmp]
+    # macOS-only tools (nono sandbox wrappers reference ~/.config/nono
+    # profiles that only exist on the Mac).
+    ++ lib.optionals pkgs.stdenv.isDarwin [nonoPi nonoOpencode nonoOmp]
+    ++ lib.optionals pkgs.stdenv.isDarwin (with pkgs; [
+      terminal-notifier
+      freelens-bin
+    ])
     ++ llmAgentsPackages
     ++ (with pkgs; [
       qemu

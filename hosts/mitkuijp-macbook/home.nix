@@ -2,6 +2,7 @@ _: {
   imports = [
     ../../profiles/dev.nix
     ../../secrets/default.nix
+    ./env.nix
   ];
 
   mySecrets.enable = true;

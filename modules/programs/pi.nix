@@ -1,6 +1,7 @@
 {
   inputs,
   pkgs,
+  lib,
   config,
   ...
 }: let
@@ -24,18 +25,22 @@ in {
         "pnpm"
         "--ignore-scripts"
       ];
-      packages = [
-        "npm:@ujjwalgrover/pi-catppuccin"
-        "npm:pi-openspec-status"
-        "npm:@aliou/pi-synthetic"
-        {
-          source = "/Users/mitkuijp/.config/nono/packages/nolabs-ai/pi";
-        }
-        "npm:pi-blackhole"
-        # "npm:pi-browser-use@0.11.7"
-        # "/Users/mitkuijp/Development/pi-bert"
-        "git:github.com/NVlabs/SoL-Pi"
-      ];
+      packages =
+        [
+          "npm:@ujjwalgrover/pi-catppuccin"
+          "npm:pi-openspec-status"
+          "npm:@aliou/pi-synthetic"
+          "npm:pi-blackhole"
+          # "npm:pi-browser-use@0.11.7"
+          # "/Users/mitkuijp/Development/pi-bert"
+          "git:github.com/NVlabs/SoL-Pi"
+        ]
+        # nono's pi package is only provisioned on the Mac.
+        ++ lib.optionals pkgs.stdenv.isDarwin [
+          {
+            source = "/Users/mitkuijp/.config/nono/packages/nolabs-ai/pi";
+          }
+        ];
       editorPaddingX = 1;
       transport = "websocket";
       permissionLevel = "medium";
@@ -67,12 +72,14 @@ in {
   # The launcher is `agent-playwright-mcp`, which picks pnpm/npx/bun and keeps
   # install output off stdout so it can't corrupt the JSON-RPC stream.
   # `codemode` exposure keeps the 25 browser tools out of the tool list; call
-  # them from a codemode script instead.
-  home.file."${cfg.configDir}/mcp.json".source = jsonFormat.generate "pi-mcp.json" {
-    mcpServers.playwright = {
-      command = "agent-playwright-mcp";
-      exposure = "codemode";
-      description = "Drive the user's running agent Chrome browser over CDP (127.0.0.1:13306): navigate, snapshot, click, type, screenshot, read console/network";
+  # them from a codemode script instead. macOS-only (host Chrome).
+  home.file."${cfg.configDir}/mcp.json" = lib.mkIf pkgs.stdenv.isDarwin {
+    source = jsonFormat.generate "pi-mcp.json" {
+      mcpServers.playwright = {
+        command = "agent-playwright-mcp";
+        exposure = "codemode";
+        description = "Drive the user's running agent Chrome browser over CDP (127.0.0.1:13306): navigate, snapshot, click, type, screenshot, read console/network";
+      };
     };
   };
 }

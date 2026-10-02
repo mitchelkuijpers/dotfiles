@@ -1,4 +1,9 @@
-{config, ...}: {
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}: {
   programs.git = {
     enable = true;
 
@@ -6,10 +11,11 @@
       user.name = "Mitchel Kuijpers";
       user.email = "mitchel.kuijpers@avisi.nl";
       push.autoSetupRemote = true;
-      gpg.format = "ssh";
+      # SSH signing is Mac-only: agent VMs deliberately get no personal keys.
+      gpg.format = lib.mkIf pkgs.stdenv.isDarwin "ssh";
     };
 
-    signing = {
+    signing = lib.mkIf pkgs.stdenv.isDarwin {
       key = "${config.home.homeDirectory}/.ssh/avisi.pub";
       signByDefault = true;
     };
