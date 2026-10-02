@@ -7,8 +7,10 @@
 #          ./scripts/bootstrap-vm.sh box@shellbox.dev shellbox
 #
 # What it does on the VM (as the ssh'd user):
-#   1. rsync this repo to ~/dotfiles (plain path flake; .git excluded so the
-#      remote always sees the working tree as-is, including uncommitted edits)
+#   1. copy this repo to ~/dotfiles (plain path flake; .git excluded so the
+#      remote always sees the working tree as-is, including uncommitted edits).
+#      Uses rsync when the remote has it, else tar-over-ssh (stock shellbox
+#      images don't ship rsync).
 #   2. install Nix (Determinate installer) if absent
 #   3. trust the numtide cache system-wide — flake nixConfig public keys are
 #      ignored for untrusted users, and without them the llm-agents packages
@@ -27,8 +29,14 @@ fi
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 echo "==> syncing repo to $dest:~/dotfiles"
-ssh "$dest" 'mkdir -p ~/dotfiles'
-rsync -a --delete --exclude .git/ "$repo_root/" "$dest:dotfiles/"
+if ssh "$dest" 'command -v rsync >/dev/null 2>&1'; then
+  ssh "$dest" 'mkdir -p ~/dotfiles'
+  rsync -a --delete --exclude .git/ "$repo_root/" "$dest:dotfiles/"
+else
+  echo "    (remote has no rsync; using tar)"
+  ssh "$dest" 'rm -rf ~/dotfiles && mkdir -p ~/dotfiles'
+  tar -c --exclude .git -C "$repo_root" . | ssh "$dest" 'tar -x -C ~/dotfiles'
+fi
 
 echo "==> bootstrapping $dest"
 ssh "$dest" bash -se -- "$cfg_override" <<'REMOTE'
