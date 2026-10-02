@@ -142,8 +142,13 @@ script, cutting bootstrap to seconds.
   pty ioctls during the Determinate install — Mac-test artifact only.
 - shellbox also supports `create-from-oci` (linux/amd64 images only) —
   relevant if the parked NixOS-userland idea (ideas/) is revived for it.
-- NOTE: shellbox boxes are auto-destroyed after ~24h offline;
-  re-bootstrap on wake if the box was rebuilt from the golden image.
+- Lifecycle: boxes persist and pause to a memory snapshot on disconnect
+  (~3s resume). Deletion ONLY happens at $0 account balance (auto-stop
+  below $5). One consequence: bootstrap state survives reconnects — no
+  re-bootstrap ritual needed.
+  (Corrects an earlier wrong note in this plan claiming boxes are
+  auto-destroyed after ~24h; that was confabulated from exe.dev's idle
+  auto-shutdown FAQ, which also only stops VMs.)
 4. **Polish/image** — Makefile target ✅ (`make vm`), README section ✅.
    The exe.dev NixOS userland image idea is parked in
    `ideas/exedev-nixos-userland.md` — the Ubuntu + standalone
