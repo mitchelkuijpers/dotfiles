@@ -36,7 +36,7 @@ in {
           "git:github.com/NVlabs/SoL-Pi"
         ]
         # nono's pi package is only provisioned on the Mac.
-        ++ lib.optionals pkgs.stdenv.isDarwin [
+        ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
           {
             source = "/Users/mitkuijp/.config/nono/packages/nolabs-ai/pi";
           }
@@ -73,7 +73,7 @@ in {
   # install output off stdout so it can't corrupt the JSON-RPC stream.
   # `codemode` exposure keeps the 25 browser tools out of the tool list; call
   # them from a codemode script instead. macOS-only (host Chrome).
-  home.file."${cfg.configDir}/mcp.json" = lib.mkIf pkgs.stdenv.isDarwin {
+  home.file."${cfg.configDir}/mcp.json" = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
     source = jsonFormat.generate "pi-mcp.json" {
       mcpServers.playwright = {
         command = "agent-playwright-mcp";

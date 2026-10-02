@@ -12,10 +12,10 @@
       user.email = "mitchel.kuijpers@avisi.nl";
       push.autoSetupRemote = true;
       # SSH signing is Mac-only: agent VMs deliberately get no personal keys.
-      gpg.format = lib.mkIf pkgs.stdenv.isDarwin "ssh";
+      gpg.format = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin "ssh";
     };
 
-    signing = lib.mkIf pkgs.stdenv.isDarwin {
+    signing = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
       key = "${config.home.homeDirectory}/.ssh/avisi.pub";
       signByDefault = true;
     };

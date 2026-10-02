@@ -77,8 +77,8 @@ in {
     ])
     # macOS-only tools (nono sandbox wrappers reference ~/.config/nono
     # profiles that only exist on the Mac).
-    ++ lib.optionals pkgs.stdenv.isDarwin [nonoPi nonoOpencode nonoOmp]
-    ++ lib.optionals pkgs.stdenv.isDarwin (with pkgs; [
+    ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [nonoPi nonoOpencode nonoOmp]
+    ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin (with pkgs; [
       terminal-notifier
       freelens-bin
     ])
