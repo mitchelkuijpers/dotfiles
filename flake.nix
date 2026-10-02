@@ -24,23 +24,35 @@
     home-manager,
     ...
   }: let
-    system = "aarch64-darwin";
+    # Systems we evaluate for: the Mac, and Linux agent VMs on both arches
+    # (see plans/agent-vms.md; exe.dev VMs can be x86_64 or aarch64).
+    systems = ["aarch64-darwin" "x86_64-linux" "aarch64-linux"];
 
-    mkPkgs = src:
-      import src {
+    mkPkgs = system:
+      import nixpkgs {
         inherit system;
         config.allowUnfree = true;
       };
 
-    pkgs = mkPkgs nixpkgs;
+    mkHome = system: hostModule:
+      home-manager.lib.homeManagerConfiguration {
+        pkgs = mkPkgs system;
+        extraSpecialArgs = {inherit inputs;};
+        modules = [hostModule];
+      };
   in {
-    # Makes `nix run .` launch the home-manager CLI
-    packages.${system}.default = home-manager.packages.${system}.default;
+    # Makes `nix run .` launch the home-manager CLI, on any supported system
+    # (agent VMs bootstrap via `nix run . -- switch --flake .#exedev-arm`).
+    packages = nixpkgs.lib.genAttrs systems (system: {
+      default = home-manager.packages.${system}.default;
+    });
 
-    homeConfigurations.mitkuijp = home-manager.lib.homeManagerConfiguration {
-      inherit pkgs;
-      extraSpecialArgs = {inherit inputs;};
-      modules = [./hosts/mitkuijp-macbook/home.nix];
+    homeConfigurations = {
+      mitkuijp = mkHome "aarch64-darwin" ./hosts/mitkuijp-macbook/home.nix;
+
+      # Linux agent VMs (exe.dev login user `exedev`); pick by `uname -m`.
+      exedev = mkHome "x86_64-linux" ./hosts/exedev/home.nix;
+      exedev-arm = mkHome "aarch64-linux" ./hosts/exedev/home.nix;
     };
   };
 }
