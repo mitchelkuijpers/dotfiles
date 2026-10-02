@@ -10,5 +10,6 @@ _: {
     ../modules/programs/fzf.nix
     ../modules/programs/starship.nix
     ../modules/programs/herdr.nix
+    ../modules/programs/pi.nix
   ];
 }
