@@ -9,9 +9,7 @@ _: {
     ../modules/programs/bash.nix
     ../modules/programs/zsh.nix
     ../modules/programs/tmux.nix
-    ../modules/programs/helix.nix
     ../modules/programs/lazygit.nix
     ../modules/programs/zoxide.nix
-    ../modules/programs/yazi.nix
   ];
 }

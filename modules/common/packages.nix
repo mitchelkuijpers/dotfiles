@@ -79,16 +79,15 @@
     whisper-cpp
   ];
 in {
+  # Node/Go/Python toolchains are managed by mise per-project, not Nix.
   home.packages =
     (with pkgs; [
-      cmake
       coreutils
       fd
       gh
       git-crypt
       gnused
       gnutar
-      go
       jq
       neovim
       ripgrep
@@ -96,7 +95,6 @@ in {
       shellcheck
       tmuxinator
       tree
-      uv
       wget
       yq
       gnugrep
@@ -121,11 +119,5 @@ in {
     ])
     ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin workstationExtras
     ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin llmAgentsDarwinOnly
-    ++ llmAgentsPackages
-    ++ (with pkgs; [
-      # Node
-      pnpm
-      nodejs_24
-      bun
-    ]);
+    ++ llmAgentsPackages;
 }
