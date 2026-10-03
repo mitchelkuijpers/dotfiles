@@ -5,12 +5,14 @@
   ...
 }: let
   llmAgents = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
-  llmAgentsPackages = [llmAgents.hunk];
-  # Unused on agent VMs for now; several besides codex also skip numtide's
-  # cache and build from source on linux. Kept on the Mac.
+  # Installed everywhere, including linux agent VMs. opencode2 is wanted on
+  # VMs (it substitutes fine); hunk is small and useful there too.
+  llmAgentsPackages = [llmAgents.hunk llmAgents.opencode2];
+  # Kept on the Mac: these skip numtide's cache and build from source on
+  # linux (codex is a large Rust build), or are macOS-only (tuicr,
+  # terminal-browser).
   llmAgentsDarwinOnly = with llmAgents; [
     codex
-    opencode2
     tuicr
     terminal-browser
   ];

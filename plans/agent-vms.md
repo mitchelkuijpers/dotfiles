@@ -62,6 +62,10 @@ Validated up front:
 
 - All llm-agents.nix packages we use (pi, opencode2, codex, tuicr, hunk,
   terminal-browser) exist for both `x86_64-linux` and `aarch64-linux`.
+- On agent VMs we install `pi`, `opencode2`, and `hunk`. `codex`, `tuicr`,
+  and `terminal-browser` stay Mac-only: they skip numtide's cache on linux
+  and build from source (codex is a large Rust build), and `tuicr`/
+  `terminal-browser` are macOS-oriented.
 - `programs.pi-coding-agent` is an upstream home-manager module → portable.
 
 ## Portability refactor (phase 1 — no behavior change on the Mac)
@@ -70,7 +74,10 @@ Validated up front:
 
 Guard darwin-only entries with `lib.optionals pkgs.stdenv.isDarwin`:
 
-- darwin-only: `terminal-notifier`, `freelens-bin`, the `nono-*` wrappers
+- always installed: `hunk`, `opencode2` (both substitute from numtide's
+  cache on linux)
+- darwin-only: `codex`, `tuicr`, `terminal-browser`,
+  `terminal-notifier`, `freelens-bin`, the `nono-*` wrappers
   (reference macOS-specific `~/.config/nono` profiles; nono-on-linux is a
   possible follow-up).
 
