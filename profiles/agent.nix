@@ -6,6 +6,9 @@ _: {
     ./base.nix
 
     ../modules/common/packages.nix
+    # Platform-appropriate agent-environment skill (the Mac variant lives in
+    # modules/common/agent-environment.nix, imported only via profiles/dev.nix).
+    ../modules/common/agent-vm-skill.nix
 
     ../modules/programs/mise.nix
     ../modules/programs/direnv.nix

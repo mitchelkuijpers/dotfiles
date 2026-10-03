@@ -15,8 +15,17 @@
 # ~/.agents/skills, which pi, opencode and other compliant agents discover
 # natively. Bump the pinned Playwright version in the run-server script AND
 # the skill together.
+#
+# macOS-only. Everything here (nono/Seatbelt browser limits, host Chrome via
+# `open`, the colima agent socket) is meaningless on a Linux VM, and the skill
+# text is explicitly written for the Mac. Guarded so it can never be handed to
+# an agent on an agent VM even if a linux profile ever imports this module.
 {
-  home.file = {
+  lib,
+  pkgs,
+  ...
+}: {
+  home.file = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
     ".agents/skills/agent-environment/SKILL.md".source = ../../assets/agent-environment/SKILL.md;
 
     ".local/bin/agent-browser" = {
