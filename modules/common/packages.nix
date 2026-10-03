@@ -80,6 +80,7 @@
   ];
 in {
   # Node/Go/Python toolchains are managed by mise per-project, not Nix.
+  # Keep pnpm available for Pi's npmCommand on both Mac and agent VMs.
   home.packages =
     (with pkgs; [
       coreutils
@@ -90,6 +91,7 @@ in {
       gnutar
       jq
       neovim
+      pnpm
       ripgrep
       sd
       shellcheck
