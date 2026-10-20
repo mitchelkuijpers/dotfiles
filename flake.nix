@@ -20,6 +20,7 @@
   };
 
   outputs = inputs @ {
+    self,
     nixpkgs,
     home-manager,
     ...
@@ -40,12 +41,31 @@
         extraSpecialArgs = {inherit inputs;};
         modules = [hostModule];
       };
+
+    # Home Manager entry baked into the local agent sandbox OCI image
+    # (microsandbox.dev) — see images/agent-image.nix.
+    msbHome = mkHome "aarch64-linux" ./hosts/msb/home.nix;
   in {
     # Makes `nix run .` launch the home-manager CLI, on any supported system
-    # (agent VMs bootstrap via `nix run . -- switch --flake .#exedev-arm`).
-    packages = nixpkgs.lib.genAttrs systems (system: {
-      default = home-manager.packages.${system}.default;
-    });
+    # (agent VMs bootstrap via `nix run . -- switch --flake .#exedev-arm`),
+    # plus the local agent sandbox OCI image (microsandbox.dev, arm-only —
+    # MSB on the Mac boots aarch64-linux guests).
+    packages = let
+      base = nixpkgs.lib.genAttrs systems (system: {
+        default = home-manager.packages.${system}.default;
+      });
+    in
+      base
+      // {
+        aarch64-linux =
+          base.aarch64-linux
+          // {
+            agent-image = import ./images/agent-image.nix {
+              pkgs = mkPkgs "aarch64-linux";
+              inherit (msbHome) activationPackage;
+            };
+          };
+      };
 
     homeConfigurations = {
       mitkuijp = mkHome "aarch64-darwin" ./hosts/mitkuijp-macbook/home.nix;
@@ -58,5 +78,9 @@
       # (ssh <boxname>@shellbox.dev).
       shellbox = mkHome "x86_64-linux" ./hosts/shellbox/home.nix;
     };
+
+    # Local agent sandbox (microsandbox.dev) — not a host you deploy to; the
+    # activation package is baked into packages.aarch64-linux.agent-image.
+    homeConfigurations.msb = msbHome;
   };
 }
