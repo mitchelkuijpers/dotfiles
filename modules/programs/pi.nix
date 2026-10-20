@@ -27,7 +27,6 @@ in {
       ];
       packages =
         [
-          "npm:@ujjwalgrover/pi-catppuccin"
           "npm:pi-openspec-status"
           "npm:@aliou/pi-synthetic"
           "npm:pi-blackhole"
@@ -48,18 +47,6 @@ in {
         showTerminalProgress = true;
       };
       collapseChangelog = true;
-      modelThinkingLevels = {
-        "openai-codex/gpt-5.6-sol" = "high";
-        "synthetic/hf:moonshotai/Kimi-K3" = "high";
-        "openai-codex/gpt-5.6-luna" = "xhigh";
-      };
-      enabledModels = [
-        "synthetic/hf:zai-org/GLM-5.3-Flash"
-        "synthetic/hf:deepseek-ai/DeepSeek-V4.1-Flash"
-        "synthetic/hf:moonshotai/Kimi-K3"
-        "openai-codex/gpt-6-luna"
-        "openai-codex/gpt-6-sol"
-      ];
     };
   };
 
