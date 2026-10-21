@@ -2,6 +2,15 @@
   programs.fish = {
     enable = true;
 
+    functions.refresh-env = {
+      description = "Reload Home Manager session variables";
+      # Clear the inherited guard before replacing this shell, not Herdr.
+      body = ''
+        set -e __HM_SESS_VARS_SOURCED
+        exec fish
+      '';
+    };
+
     # Abbreviations expand on Enter, so any shell syntax (env vars, flags) is fine.
     shellAbbrs = {
       # Docker per colima profile: colima registers one Docker context per profile.
