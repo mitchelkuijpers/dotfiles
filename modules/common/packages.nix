@@ -5,12 +5,13 @@
   ...
 }: let
   llmAgents = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
+  # Isolated 18.12.5 pin: the main llm-agents input remains fixed for Pi.
+  omp = inputs.omp-agents.packages.${pkgs.stdenv.hostPlatform.system}.omp;
   # Installed everywhere, including linux agent VMs. opencode2 is wanted on
   # VMs (it substitutes fine); hunk is small and useful there too.
   llmAgentsPackages = [llmAgents.hunk llmAgents.opencode2];
-  # Kept on the Mac: these skip numtide's cache and build from source on
-  # linux (codex is a large Rust build), or are macOS-only (tuicr,
-  # terminal-browser).
+  # Kept on the Mac: codex builds a large Rust project on Linux, while
+  # tuicr and terminal-browser are macOS-only. OMP needs workstation services.
   llmAgentsDarwinOnly = with llmAgents; [
     codex
     tuicr
@@ -26,7 +27,7 @@
   '';
 
   nonoOmp = pkgs.writeShellScriptBin "nono-omp" ''
-    exec env HERDR_AGENT=omp nono run --silent --profile omp-local --allow-cwd -- omp --approval-mode=yolo "$@"
+    exec env HERDR_AGENT=omp nono run --silent --profile omp-local --allow-cwd -- ${omp}/bin/omp --approval-mode=yolo "$@"
   '';
   # Workstation/work extras that agent VMs deliberately skip, both to keep
   # bootstraps lean (several GiB of downloads) and because they're useless
@@ -120,6 +121,6 @@ in {
       freelens-bin
     ])
     ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin workstationExtras
-    ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin llmAgentsDarwinOnly
+    ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin (llmAgentsDarwinOnly ++ [omp])
     ++ llmAgentsPackages;
 }

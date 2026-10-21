@@ -7,6 +7,19 @@
 }: let
   cfg = config.programs.pi-coding-agent;
   jsonFormat = pkgs.formats.json {};
+  modelDefaults =
+    if pkgs.stdenv.hostPlatform.isDarwin
+    then {
+      # Discover broker-backed model catalog through the local OMP gateway.
+      defaultProvider = "omp-gateway";
+      defaultModel = "openai-codex/gpt-6-sol";
+      defaultThinkingLevel = "medium";
+    }
+    else {
+      defaultProvider = "synthetic";
+      defaultModel = "hf:deepseek-ai/DeepSeek-V4.1-Flash";
+      defaultThinkingLevel = "high";
+    };
 in {
   programs.pi-coding-agent = {
     enable = true;
@@ -15,39 +28,42 @@ in {
     # Written to ~/.pi/agent/settings.json.
     # Note: pi mutates this file at runtime (selected model, changelog state, etc.).
     # Switching resets it to exactly this set — re-add runtime-only keys here if needed.
-    settings = {
-      # Synthetic DeepSeek as default (requested override).
-      defaultProvider = "synthetic";
-      defaultModel = "hf:deepseek-ai/DeepSeek-V4.1-Flash";
-      defaultThinkingLevel = "high";
-      hideThinkingBlock = false;
-      npmCommand = [
-        "pnpm"
-        "--ignore-scripts"
-      ];
-      packages =
-        [
-          "npm:pi-openspec-status"
-          "npm:@aliou/pi-synthetic"
-          "npm:pi-blackhole"
-          # "npm:pi-browser-use@0.11.7"
-          # "/Users/mitkuijp/Development/pi-bert"
-          "git:github.com/NVlabs/SoL-Pi"
-        ]
-        # nono's pi package is only provisioned on the Mac.
-        ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
-          {
-            source = "/Users/mitkuijp/.config/nono/packages/nolabs-ai/pi";
-          }
+    settings =
+      {
+        hideThinkingBlock = false;
+        npmCommand = [
+          "pnpm"
+          "--ignore-scripts"
         ];
-      editorPaddingX = 1;
-      transport = "websocket";
-      permissionLevel = "medium";
-      terminal = {
-        showTerminalProgress = true;
-      };
-      collapseChangelog = true;
-    };
+        packages =
+          [
+            "npm:pi-openspec-status"
+            "npm:@aliou/pi-synthetic"
+            "npm:pi-blackhole"
+            # "npm:pi-browser-use@0.11.7"
+            # "/Users/mitkuijp/Development/pi-bert"
+            "git:github.com/NVlabs/SoL-Pi"
+          ]
+          # nono's pi package is only provisioned on the Mac.
+          ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
+            {
+              source = "/Users/mitkuijp/.config/nono/packages/nolabs-ai/pi";
+            }
+          ];
+        editorPaddingX = 1;
+        transport = "websocket";
+        permissionLevel = "medium";
+        terminal = {
+          showTerminalProgress = true;
+        };
+        collapseChangelog = true;
+      }
+      // modelDefaults;
+  };
+  # Pi auto-loads user extensions from this directory. This provider refreshes
+  # its model list from the authenticated OMP gateway instead of duplicating it.
+  home.file."${cfg.configDir}/extensions/omp-gateway.ts" = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
+    source = ../../assets/omp-gateway.ts;
   };
 
   # MCP servers. Home Manager has no dedicated option for these yet, so write

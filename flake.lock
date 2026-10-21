@@ -180,12 +180,51 @@
         "type": "github"
       }
     },
+    "omp-agents": {
+      "inputs": {
+        "bun2nix": [
+          "llm-agents",
+          "bun2nix"
+        ],
+        "flake-parts": [
+          "llm-agents",
+          "flake-parts"
+        ],
+        "nixpkgs": [
+          "llm-agents",
+          "nixpkgs"
+        ],
+        "systems": [
+          "llm-agents",
+          "systems"
+        ],
+        "treefmt-nix": [
+          "llm-agents",
+          "treefmt-nix"
+        ]
+      },
+      "locked": {
+        "lastModified": 1792575194,
+        "narHash": "sha256-NUhP/UFzW2mw0gtLdNWot2uEZ1K/NxFXMG0b1YvY1zE=",
+        "owner": "numtide",
+        "repo": "llm-agents.nix",
+        "rev": "c5beab1cbccf7b09060b16954a6eca15398140c5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "llm-agents.nix",
+        "rev": "c5beab1cbccf7b09060b16954a6eca15398140c5",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "home-manager": "home-manager",
         "llm-agents": "llm-agents",
         "maki": "maki",
-        "nixpkgs": "nixpkgs_3"
+        "nixpkgs": "nixpkgs_3",
+        "omp-agents": "omp-agents"
       }
     },
     "rust-overlay": {

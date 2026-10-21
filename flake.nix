@@ -11,6 +11,18 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     llm-agents.url = "github:numtide/llm-agents.nix";
+    # Keep OMP at least as new as the workstation's existing database without
+    # moving Pi and the other agents off the independently pinned input.
+    omp-agents = {
+      url = "github:numtide/llm-agents.nix/c5beab1cbccf7b09060b16954a6eca15398140c5";
+      inputs = {
+        nixpkgs.follows = "llm-agents/nixpkgs";
+        bun2nix.follows = "llm-agents/bun2nix";
+        flake-parts.follows = "llm-agents/flake-parts";
+        systems.follows = "llm-agents/systems";
+        treefmt-nix.follows = "llm-agents/treefmt-nix";
+      };
+    };
     maki.url = "github:tontinton/maki";
 
     home-manager = {
