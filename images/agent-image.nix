@@ -23,7 +23,7 @@
   username ? "agent",
   uid ? 1000,
 }: let
-  lib = pkgs.lib;
+  inherit (pkgs) lib;
   homeDir = "/home/${username}";
   hmProfile = "${homeDir}/.nix-profile";
 
