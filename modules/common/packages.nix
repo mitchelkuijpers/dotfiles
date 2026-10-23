@@ -27,7 +27,7 @@
   '';
 
   nonoOmp = pkgs.writeShellScriptBin "nono-omp" ''
-    exec env HERDR_AGENT=omp nono run --silent --profile omp-local --allow-cwd -- ${omp}/bin/omp --approval-mode=yolo "$@"
+    exec env HERDR_AGENT=omp nono run --silent --profile omp-local --allow-cwd -- ${pkgs.coreutils}/bin/env OMP_AUTH_BROKER_URL=http://127.0.0.1:18765 ${omp}/bin/omp --approval-mode=yolo "$@"
   '';
   # Workstation/work extras that agent VMs deliberately skip, both to keep
   # bootstraps lean (several GiB of downloads) and because they're useless
@@ -80,6 +80,9 @@
     whisper-cpp
   ];
 in {
+  # Home Manager installs devenv and wires its hook into Fish (and other shells).
+  programs.devenv.enable = true;
+
   # Node/Go/Python toolchains are managed by mise per-project, not Nix.
   # Keep pnpm available for Pi's npmCommand on both Mac and agent VMs.
   home.packages =

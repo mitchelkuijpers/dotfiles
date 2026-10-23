@@ -67,10 +67,21 @@ Nix store. Do not put raw tokens in Nix settings or session variables.
 The gateway reads the broker token from `~/.omp/auth-broker.token`; Pi reads
 only `~/.omp/auth-gateway.token` at runtime. OAuth login remains an interactive
 operation with `omp auth-broker login`.
-Nix sets `OMP_AUTH_BROKER_URL` only for the gateway LaunchAgent, not globally
-in the shell, and does not export `OMP_AUTH_BROKER_TOKEN`. Separately configured
-broker clients must use `http://127.0.0.1:18765`; an inherited token overrides
-file-based token resolution. Update any old client URLs during cutover.
+Nix sets `OMP_AUTH_BROKER_URL=http://127.0.0.1:18765` for the gateway
+LaunchAgent and `nono-omp`, not globally in the shell, and does not export
+`OMP_AUTH_BROKER_TOKEN`. The launcher sets the URL inside the sandbox so
+nono's environment filtering cannot remove it. OMP reads the broker token
+from `~/.omp/auth-broker.token`; direct broker access exposes provider
+credentials to OMP, unlike gateway access. An inherited broker token overrides
+file-based token resolution. Plain `omp` is unchanged.
+
+For custom broker-backed providers in `~/.omp/agent/models.yml`, remove pinned
+`apiKey` overrides. In OMP 18.12.5, static custom models require `auth: none`
+when no config key or OAuth flow is supplied; broker credentials still take
+precedence over the keyless fallback. For Nebul this lets the broker supply
+the key without requiring `NEBUL_API_KEY` inside nono. Leaving
+`apiKey: NEBUL_API_KEY` would override the broker and send the variable name
+as the literal key when nono filters that environment variable.
 
 Pi's `omp-gateway` provider discovers chat models from the gateway's
 authenticated `/v1/models` endpoint. Its default is
