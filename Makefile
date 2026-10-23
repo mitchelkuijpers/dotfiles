@@ -31,7 +31,7 @@ check:
 	nix flake check
 
 fmt:
-	nix run nixpkgs#alejandra -- .
+	nix fmt .
 
 lint:
 	nix run nixpkgs#statix -- check .

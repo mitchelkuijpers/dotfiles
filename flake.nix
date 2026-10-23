@@ -58,6 +58,8 @@
     # (microsandbox.dev) — see images/agent-image.nix.
     msbHome = mkHome "aarch64-linux" ./hosts/msb/home.nix;
   in {
+    formatter = nixpkgs.lib.genAttrs systems (system: (mkPkgs system).alejandra);
+
     # Makes `nix run .` launch the home-manager CLI, on any supported system
     # (agent VMs bootstrap via `nix run . -- switch --flake .#exedev-arm`),
     # plus the local agent sandbox OCI image (microsandbox.dev, arm-only —
