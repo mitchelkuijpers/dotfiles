@@ -77,12 +77,23 @@ special hostnames are needed. OIDC/`redirect_uri`s and secure-context APIs
 
 ## Docker for agents
 
-Agents get an isolated Docker without touching the user's main instance:
+Agents get an isolated Docker without touching the user's main instance. Each
+launchd-managed colima profile exposes its socket at `$HOME/.colima/<profile>/docker.sock`;
+the agent profile is already wired up by the sandbox profile:
 
 ```sh
-export DOCKER_HOST=unix://$HOME/.colima-agent.sock   # colima "agent" VM
+# DOCKER_HOST / DOCKER_CONFIG are set for you -> this is the "agent" VM.
 docker ps
+
+# The same VM, stated explicitly:
+docker -H unix://$HOME/.colima/agent/docker.sock ps
 ```
+
+Do **not** use `docker --context colima-agent`: the sandbox points
+`DOCKER_CONFIG` at an isolated dir that has no `contexts/` entry, so context
+lookups fail with `context not found: open .../meta.json: no such file or
+directory`. Use `DOCKER_HOST` (or `docker -H <socket>`) instead. The user's main
+instance stays on `$HOME/.colima/default/docker.sock`.
 
 If the socket exists but refuses connections, the colima VM's forwarding
 flaked — ask the user to run `crestart agent` on the host (bounces the

@@ -11,8 +11,8 @@ browsers or daemons. Run things directly.
 
 > The macOS `agent-environment` skill does not apply here. If you find
 > instructions about `agent-browser`, `127.0.0.1:13306`, a Playwright
-> run-server on `:3000`, or `~/.colima-agent.sock`, ignore them — those
-> describe the Mac, not this machine.
+> run-server on `:3000`, or a `~/.colima/<profile>/docker.sock` socket, ignore
+> them — those describe the Mac, not this machine.
 
 ## What you can do here
 
