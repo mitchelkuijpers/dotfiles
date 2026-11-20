@@ -1,4 +1,8 @@
 {pkgs, ...}: {
+  programs.devenv = {
+    enable = true;
+    enableFishIntegration = false;
+  };
   programs.fish = {
     enable = true;
 
@@ -50,6 +54,7 @@
       alias nb "nix build path:."
       alias nr "nix run path:."
 
+      devenv hook fish -- --no-tui | source
 
       # Testcontainers uses DOCKER_HOST, which is set by the colima module (setDockerHost).
       # See https://java.testcontainers.org/supported_docker_environment/

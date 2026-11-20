@@ -68,9 +68,6 @@
     ffmpeg
   ];
 in {
-  # Home Manager installs devenv and wires its hook into Fish (and other shells).
-  programs.devenv.enable = true;
-
   # Node/Go/Python toolchains are managed by mise per-project, not Nix.
   # Keep pnpm available for Pi's npmCommand on both Mac and agent VMs.
   home.packages =
