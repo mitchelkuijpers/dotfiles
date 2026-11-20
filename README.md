@@ -23,6 +23,7 @@ This repository manages local developer setup with Home Manager + Nix flakes.
 - `make export-key`: export the git-crypt key as base64 for backup.
 - `make import-key`: restore the git-crypt key from a base64 backup.
 - `make vm VM=<ssh-dest>`: bootstrap or update an agent VM (Ubuntu, e.g. exe.dev) with the same tooling. See `plans/agent-vms.md`.
+- `make vm-new VM=<name> REV=<full commit SHA>`: create and verify a fresh exe.dev agent VM. See [the pilot instructions](plans/agent-vms.md#exe-dev-fleet-pilot).
 
 ## Adding dependencies
 
@@ -47,9 +48,11 @@ To update those versions, refresh the flake lock:
 
 ### Pi providers
 
-On macOS, Pi installs the CLIProxyAPI provider and keeps model selection
-in writable settings managed by Magpie. Linux agent profiles retain their
-Synthetic defaults.
+On macOS and exe.dev, Pi keeps model selection in writable settings managed
+by Magpie. Home Manager merges in shared Pi settings on each switch and
+preserves Magpie's selected model. On exe.dev the direct Synthetic provider
+remains available alongside Magpie. Other Linux agent profiles default to
+Synthetic.
 
 ## Secrets management
 

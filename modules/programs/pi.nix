@@ -17,13 +17,9 @@ in {
     enable = true;
     package = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.pi;
 
-    # Written to ~/.pi/agent/settings.json.
-    # Magpie (and pi itself) rewrite this file at runtime: atomic JSON writes
-    # fail when the file is a read-only /nix/store symlink, so on the Mac it
-    # is a real writable file that activation merges this set into. Declared
-    # keys still win on every switch; keys left out here (magpie's model
-    # pick, enabledModels, pi's runtime state) persist.
-    mutableSettings = pkgs.stdenv.hostPlatform.isDarwin;
+    # Home Manager merges shared settings into a writable file on hosts where
+    # Magpie selects the model. Other hosts use the pinned Synthetic default.
+    mutableSettings = lib.mkDefault pkgs.stdenv.hostPlatform.isDarwin;
     settings =
       {
         hideThinkingBlock = false;
@@ -55,11 +51,8 @@ in {
         };
         collapseChangelog = true;
       }
-      # On the Mac magpie writes defaultProvider/defaultModel/
-      # defaultThinkingLevel; declaring them would reset the pick on every
-      # activation and show up in magpie as drift. The Linux VMs keep the
-      # static defaults (their settings.json stays immutable).
-      // lib.optionalAttrs (!pkgs.stdenv.hostPlatform.isDarwin) modelDefaults;
+      # Leave Magpie's model and thinking settings out of the activation merge.
+      // lib.optionalAttrs (!cfg.mutableSettings) modelDefaults;
   };
   # MCP servers. Home Manager has no dedicated option for these yet, so write
   # <configDir>/mcp.json directly.

@@ -124,6 +124,44 @@ exe.dev integration: wrap creation as
 Later (optional): a custom exe.dev image with Nix preinstalled + setup
 script, cutting bootstrap to seconds.
 
+## exe.dev fleet pilot
+
+From the Mac, with `jq` installed and `ssh exe.dev ls` working, create a new
+VM using a full commit SHA already pushed to the dotfiles repo. The revision
+must contain `scripts/setup-vm.sh` and the Rex Home Manager configuration.
+
+```sh
+VM_DISK=40GB make vm-new VM=dev-pilot REV="$(git rev-parse HEAD)"
+```
+
+The controller creates a stock exeuntu VM with `--tag=agent`. Attach the
+`mitchelkuijpers-dotfiles` integration to that tag so the first-boot script can
+fetch the exact commit through the GitHub integration. The guest installs Nix
+and runs the same setup script as `make vm` against `exedev` or `exedev-arm`.
+Home Manager installs Rex and enables its personal user service. Lingering
+keeps the service alive after SSH disconnects.
+
+`VM_DISK` overrides the account's default disk size. A dry run with the Numtide
+cache estimated about 17 GiB of unpacked dependencies, plus build outputs and
+the base image. The 40 GB setting gives the pilot room to build.
+
+The controller verifies the checked-out revision, Neovim in the managed login
+shell, and a command run through the Rex service over SSH. The default wait is 20 minutes.
+Set `VM_WAIT_SECONDS` to adjust it. On failure, the controller leaves the VM
+available for inspection. The first-boot status and log are under
+`~/.local/state/dotfiles-bootstrap/`. Once the checkout exists, you can retry
+activation on the guest with `bash ~/dotfiles/scripts/setup-vm.sh`. A machine
+with an existing socket-activated Rex install needs a service migration before
+applying the Home Manager service.
+
+The pilot covers the base profile and Rex. Git-signer and Magpie enrollment are
+still separate steps, and no account-wide VM defaults are needed.
+
+For a follow-up image experiment, the [NixOS on exe.dev Hub post](https://hub.exe.dev/p/242)
+shows how to package a NixOS system as an OCI image. The same revision and
+SSH smoke checks can compare it with this exeuntu pilot. Keep the integration
+tag and per-VM enrollment when trying the NixOS image.
+
 ## Phases
 
 1. **Portability guards** ✅ — refactor done; generation verified

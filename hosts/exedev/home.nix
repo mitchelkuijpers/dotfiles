@@ -1,8 +1,17 @@
 # Home Manager entry for agent VMs on exe.dev (and other Ubuntu VMs where the
 # login user is `exedev`). No secrets, no personal keys — see plans/agent-vms.md.
-{config, ...}: {
+{
+  config,
+  inputs,
+  lib,
+  pkgs,
+  ...
+}: let
+  piConfigDir = config.programs.pi-coding-agent.configDir;
+in {
   imports = [
     ../../profiles/agent.nix
+    inputs.rex.homeManagerModules.default
   ];
 
   # Non-NixOS host (Ubuntu): extra PATH/locale handling for nix-installed
@@ -12,16 +21,35 @@
   # genericLinux pulls in by default for graphics apps.
   targets.genericLinux.gpu.enable = false;
 
-  # exe.dev's integration proxies Synthetic model requests; leave the Mac and
-  # shellbox on their own endpoints. Pi's provider extension supplies models.
+  programs.pi-coding-agent.mutableSettings = true;
+
+  services.rex.enable = true;
+  # Keep existing SSH config under the user's control.
+  programs.rex.sshGuard = false;
+
   home = {
-    file."${config.programs.pi-coding-agent.configDir}/models.json".text = builtins.toJSON {
-      providers.synthetic.baseUrl = "https://synthetic-v2.int.exe.xyz/openai/v1";
-    };
+    # Keep the direct Synthetic provider available while Magpie manages its own
+    # provider entry in the same writable models.json.
+    activation.piSyntheticProvider = lib.hm.dag.entryAfter ["linkGeneration"] (
+      lib.hm.generators.mkImpureConfigMerger {
+        inherit pkgs;
+        format = "json";
+        empty = "{}";
+        mode = "600";
+        path = "${piConfigDir}/models.json";
+        staticSettings = (pkgs.formats.json {}).generate "pi-synthetic-provider.json" {
+          providers.synthetic.baseUrl = "https://synthetic-v2.int.exe.xyz/openai/v1";
+        };
+        jqOperation = "$dynamic * $static";
+      }
+    );
+
+    # Rex's remote connector also searches ~/.local/bin on noninteractive SSH.
+    file.".local/bin/rex".source = "${config.programs.rex.package}/bin/rex";
 
     # Only a bogus proxy key: safe to store publicly in Nix. This replaces
     # existing VM credentials; Pi cannot persist /login changes to this file.
-    file."${config.programs.pi-coding-agent.configDir}/auth.json" = {
+    file."${piConfigDir}/auth.json" = {
       text = builtins.toJSON {
         synthetic = {
           type = "api_key";
