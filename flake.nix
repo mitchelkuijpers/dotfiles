@@ -11,8 +11,6 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     llm-agents.url = "github:numtide/llm-agents.nix";
-    maki.url = "github:tontinton/maki";
-
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -28,10 +26,30 @@
     # (see plans/agent-vms.md; exe.dev VMs can be x86_64 or aarch64).
     systems = ["aarch64-darwin" "x86_64-linux" "aarch64-linux"];
 
+    # Temporary git pin: 2.56.1 carries the Nov 2026 security fixes
+    # (CVE-2026-111760/-113408/-114466/-114467/-114469/-105437). nixpkgs-unstable
+    # still ships 2.56.0; drop this overlay once it moves to >= 2.56.1.
+    gitSecurityFix = _final: prev: {
+      git = prev.git.overrideAttrs (old: {
+        version = "2.56.1";
+        src = prev.fetchurl {
+          url = "https://www.kernel.org/pub/software/scm/git/git-2.56.1.tar.xz";
+          hash = "sha256-8LC/iSZLm9LhxkA2PnUpZDmJ2nYoFgBHPFB0XNNKYH8=";
+        };
+        # Upstream as of 2.56.1, so the patch no longer applies.
+        patches =
+          builtins.filter (
+            p: !(prev.lib.hasInfix "darwin-unicode-filename-fix" (p.name or (toString p)))
+          )
+          old.patches;
+      });
+    };
+
     mkPkgs = system:
       import nixpkgs {
         inherit system;
         config.allowUnfree = true;
+        overlays = [gitSecurityFix];
       };
 
     mkHome = system: hostModule:

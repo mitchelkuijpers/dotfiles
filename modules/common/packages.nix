@@ -27,23 +27,17 @@
   # Workstation/work extras that agent VMs deliberately skip, both to keep
   # bootstraps lean (several GiB of downloads) and because they're useless
   # there:
-  #   mkcert/bws        - secrets + local TLS are Mac-side
+  #   mkcert            - local TLS is Mac-side
   #   kubectl/k9s/helm  - no kubeconfig on VMs (Decision 3)
   #   qemu              - shellbox/exe.dev don't allow nested virt
-  #   terraform/ansible - work infra tooling
+  #   terraform         - work infra tooling
   #   jdk/clojure/etc   - Solution Studio languages
-  #   ffmpeg/whisper    - Solution Studio media pipeline
+  #   ffmpeg            - Solution Studio media pipeline
   workstationExtras = with pkgs; [
     mkcert
     zig
     terraform
     terraform-ls
-
-    # Bitwarden secrets manager CLI
-    bws
-
-    # AI
-    ansible
 
     # Avisi Cloud
     kubernetes-helm
@@ -72,7 +66,6 @@
 
     # Solution Studio
     ffmpeg
-    whisper-cpp
   ];
 in {
   # Home Manager installs devenv and wires its hook into Fish (and other shells).
