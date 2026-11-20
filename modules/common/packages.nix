@@ -12,6 +12,7 @@
   # tuicr and terminal-browser are macOS-only.
   llmAgentsDarwinOnly = with llmAgents; [
     codex
+    docker-sbx
     tuicr
     terminal-browser
   ];
