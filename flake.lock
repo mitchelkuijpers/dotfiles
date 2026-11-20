@@ -77,11 +77,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792098797,
-        "narHash": "sha256-u4DIIZgznEGzByxXrxWCXK19VcMtTBmi/M9gZ7Jk9bM=",
+        "lastModified": 1794278858,
+        "narHash": "sha256-rkrJwLgLSHBnXfgoSKIDa+2LLGdTqynsV3GAxOTGhUU=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "640725978b99076e18e069f6e7d2959124584f8f",
+        "rev": "82ce401aa350502897c3f2e85f384d61cd3b0b6d",
         "type": "github"
       },
       "original": {
@@ -180,51 +180,12 @@
         "type": "github"
       }
     },
-    "omp-agents": {
-      "inputs": {
-        "bun2nix": [
-          "llm-agents",
-          "bun2nix"
-        ],
-        "flake-parts": [
-          "llm-agents",
-          "flake-parts"
-        ],
-        "nixpkgs": [
-          "llm-agents",
-          "nixpkgs"
-        ],
-        "systems": [
-          "llm-agents",
-          "systems"
-        ],
-        "treefmt-nix": [
-          "llm-agents",
-          "treefmt-nix"
-        ]
-      },
-      "locked": {
-        "lastModified": 1792575194,
-        "narHash": "sha256-NUhP/UFzW2mw0gtLdNWot2uEZ1K/NxFXMG0b1YvY1zE=",
-        "owner": "numtide",
-        "repo": "llm-agents.nix",
-        "rev": "c5beab1cbccf7b09060b16954a6eca15398140c5",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "llm-agents.nix",
-        "rev": "c5beab1cbccf7b09060b16954a6eca15398140c5",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
         "home-manager": "home-manager",
         "llm-agents": "llm-agents",
         "maki": "maki",
-        "nixpkgs": "nixpkgs_3",
-        "omp-agents": "omp-agents"
+        "nixpkgs": "nixpkgs_3"
       }
     },
     "rust-overlay": {

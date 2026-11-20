@@ -7,27 +7,23 @@
 }: let
   cfg = config.programs.pi-coding-agent;
   jsonFormat = pkgs.formats.json {};
-  modelDefaults =
-    if pkgs.stdenv.hostPlatform.isDarwin
-    then {
-      # Discover broker-backed model catalog through the local OMP gateway.
-      defaultProvider = "omp-gateway";
-      defaultModel = "openai-codex/gpt-6-sol";
-      defaultThinkingLevel = "medium";
-    }
-    else {
-      defaultProvider = "synthetic";
-      defaultModel = "hf:deepseek-ai/DeepSeek-V4.1-Flash";
-      defaultThinkingLevel = "high";
-    };
+  modelDefaults = {
+    defaultProvider = "synthetic";
+    defaultModel = "hf:deepseek-ai/DeepSeek-V4.1-Flash";
+    defaultThinkingLevel = "high";
+  };
 in {
   programs.pi-coding-agent = {
     enable = true;
     package = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.pi;
 
     # Written to ~/.pi/agent/settings.json.
-    # Note: pi mutates this file at runtime (selected model, changelog state, etc.).
-    # Switching resets it to exactly this set — re-add runtime-only keys here if needed.
+    # Magpie (and pi itself) rewrite this file at runtime: atomic JSON writes
+    # fail when the file is a read-only /nix/store symlink, so on the Mac it
+    # is a real writable file that activation merges this set into. Declared
+    # keys still win on every switch; keys left out here (magpie's model
+    # pick, enabledModels, pi's runtime state) persist.
+    mutableSettings = pkgs.stdenv.hostPlatform.isDarwin;
     settings =
       {
         hideThinkingBlock = false;
@@ -40,6 +36,7 @@ in {
             "npm:pi-openspec-status"
             "npm:@aliou/pi-synthetic"
             "npm:pi-blackhole"
+            "npm:@router-for-me/pi-cliproxyapi-provider"
             # "npm:pi-browser-use@0.11.7"
             # "/Users/mitkuijp/Development/pi-bert"
             "git:github.com/NVlabs/SoL-Pi"
@@ -58,14 +55,12 @@ in {
         };
         collapseChangelog = true;
       }
-      // modelDefaults;
+      # On the Mac magpie writes defaultProvider/defaultModel/
+      # defaultThinkingLevel; declaring them would reset the pick on every
+      # activation and show up in magpie as drift. The Linux VMs keep the
+      # static defaults (their settings.json stays immutable).
+      // lib.optionalAttrs (!pkgs.stdenv.hostPlatform.isDarwin) modelDefaults;
   };
-  # Pi auto-loads user extensions from this directory. This provider refreshes
-  # its model list from the authenticated OMP gateway instead of duplicating it.
-  home.file."${cfg.configDir}/extensions/omp-gateway.ts" = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
-    source = ../../assets/omp-gateway.ts;
-  };
-
   # MCP servers. Home Manager has no dedicated option for these yet, so write
   # <configDir>/mcp.json directly.
   #

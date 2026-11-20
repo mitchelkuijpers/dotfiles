@@ -2,7 +2,6 @@ _: {
   imports = [
     ../../profiles/dev.nix
     ../../secrets/default.nix
-    ../../modules/services/omp-auth.nix
     ./env.nix
   ];
 

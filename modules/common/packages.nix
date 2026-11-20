@@ -5,13 +5,11 @@
   ...
 }: let
   llmAgents = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
-  # Isolated 18.12.5 pin: the main llm-agents input remains fixed for Pi.
-  omp = inputs.omp-agents.packages.${pkgs.stdenv.hostPlatform.system}.omp;
   # Installed everywhere, including linux agent VMs. opencode2 is wanted on
   # VMs (it substitutes fine); hunk is small and useful there too.
   llmAgentsPackages = [llmAgents.hunk llmAgents.opencode2];
   # Kept on the Mac: codex builds a large Rust project on Linux, while
-  # tuicr and terminal-browser are macOS-only. OMP needs workstation services.
+  # tuicr and terminal-browser are macOS-only.
   llmAgentsDarwinOnly = with llmAgents; [
     codex
     tuicr
@@ -26,9 +24,6 @@
     exec env SHELL=/bin/bash HERDR_AGENT=opencode nono run --silent --profile opencode --allow-cwd -- opencode2 --auto "$@"
   '';
 
-  nonoOmp = pkgs.writeShellScriptBin "nono-omp" ''
-    exec env HERDR_AGENT=omp nono run --silent --profile omp-local --allow-cwd -- ${pkgs.coreutils}/bin/env OMP_AUTH_BROKER_URL=http://127.0.0.1:18765 ${omp}/bin/omp --approval-mode=yolo "$@"
-  '';
   # Workstation/work extras that agent VMs deliberately skip, both to keep
   # bootstraps lean (several GiB of downloads) and because they're useless
   # there:
@@ -118,12 +113,12 @@ in {
     ])
     # macOS-only tools (nono sandbox wrappers reference ~/.config/nono
     # profiles that only exist on the Mac).
-    ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [nonoPi nonoOpencode nonoOmp]
+    ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [nonoPi nonoOpencode]
     ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin (with pkgs; [
       terminal-notifier
       freelens-bin
     ])
     ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin workstationExtras
-    ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin (llmAgentsDarwinOnly ++ [omp])
+    ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin llmAgentsDarwinOnly
     ++ llmAgentsPackages;
 }
