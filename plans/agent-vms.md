@@ -154,6 +154,9 @@ activation on the guest with `bash ~/dotfiles/scripts/setup-vm.sh`. A machine
 with an existing socket-activated Rex install needs a service migration before
 applying the Home Manager service.
 
+To resume verification after the controller exits, use `make vm-check` with
+the original `VM` and `REV` values. This uses the existing VM.
+
 The pilot covers the base profile and Rex. Git-signer and Magpie enrollment are
 still separate steps, and no account-wide VM defaults are needed.
 

@@ -4,7 +4,7 @@ BACKUP_EXT ?= backup
 
 .DEFAULT_GOAL := help
 
-.PHONY: help switch build check show update fmt lint unlock lock export-key import-key vm vm-new
+.PHONY: help switch build check show update fmt lint unlock lock export-key import-key vm vm-new vm-check
 
 help:
 	@echo "Available targets:"
@@ -17,6 +17,7 @@ help:
 	@echo "  make update  - Update flake.lock"
 	@echo "  make vm VM=<ssh-dest> [CFG=<flake-config>] - Bootstrap/update an agent VM (plans/agent-vms.md)"
 	@echo "  make vm-new VM=<name> REV=<commit> - Create and verify an exe.dev agent VM"
+	@echo "  make vm-check VM=<name> REV=<commit> - Verify an existing exe.dev agent VM"
 	@echo "  make unlock  - Decrypt secrets with git-crypt"
 	@echo "  make lock    - Re-encrypt secrets (git-crypt lock)"
 	@echo "  make export-key - Export git-crypt key as base64 for backup"
@@ -48,10 +49,13 @@ vm:
 	@test -n "$(VM)" || { echo "usage: make vm VM=<ssh-dest> [CFG=<flake-config>]"; echo "  e.g. make vm VM=my-vm.exe.xyz"; echo "       make vm VM=mybox@shellbox.dev CFG=shellbox"; exit 1; }
 	./scripts/bootstrap-vm.sh $(VM) $(CFG)
 
-vm-new: export VM := $(VM)
-vm-new: export REV := $(REV)
+vm-new vm-check: export VM := $(VM)
+vm-new vm-check: export REV := $(REV)
 vm-new:
 	bash scripts/new-exedev-vm.sh
+
+vm-check:
+	bash scripts/new-exedev-vm.sh --check
 
 unlock:
 	git-crypt unlock
