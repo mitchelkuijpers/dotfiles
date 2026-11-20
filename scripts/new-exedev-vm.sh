@@ -11,7 +11,10 @@ vm=${1:-${VM:-}}
 revision=${2:-${REV:-}}
 wait_seconds=${VM_WAIT_SECONDS:-1200}
 disk=${VM_DISK:-}
-if [[ ! "$vm" =~ ^[a-z0-9]([a-z0-9-]*[a-z0-9])?$ || ! "$revision" =~ ^[0-9a-f]{40}$ ]]; then
+# Bash 3.2 on macOS needs grouped regular expressions in variables.
+vm_pattern='^[a-z0-9]([a-z0-9-]*[a-z0-9])?$'
+disk_pattern='^[1-9][0-9]*(GB|TB)$'
+if [[ ! "$vm" =~ $vm_pattern || ! "$revision" =~ ^[0-9a-f]{40}$ ]]; then
   echo 'Usage: make vm-new|vm-check VM=dev-pilot REV=<full published commit SHA>' >&2
   exit 2
 fi
@@ -21,7 +24,7 @@ if [[ ! "$wait_seconds" =~ ^[1-9][0-9]*$ ]]; then
 fi
 create_args=(new --name="$vm" --tag=agent)
 if [[ -n "$disk" ]]; then
-  if [[ ! "$disk" =~ ^[1-9][0-9]*(GB|TB)$ ]]; then
+  if [[ ! "$disk" =~ $disk_pattern ]]; then
     echo 'VM_DISK must be a size such as 40GB.' >&2
     exit 2
   fi
