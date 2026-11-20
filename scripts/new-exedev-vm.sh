@@ -60,6 +60,8 @@ fi
 echo "==> Waiting for first boot on $dest"
 deadline=$((SECONDS + wait_seconds))
 output=''
+last_output=''
+next_report=0
 while (( SECONDS < deadline )); do
   if output=$(ssh "${ssh_options[@]}" -o StrictHostKeyChecking=accept-new -- "$dest" bash -s -- "$revision" \
     2>&1 < "$script_dir/check-exedev-vm.sh"); then
@@ -71,7 +73,17 @@ while (( SECONDS < deadline )); do
   fi
 
   case "$result" in
-    75|255) sleep 5 ;;
+    75|255)
+      if [[ "$output" != "$last_output" ]] || (( SECONDS >= next_report )); then
+        if (( result == 255 )); then
+          echo "==> Waiting for SSH on $dest" >&2
+        fi
+        if [[ -n "$output" ]]; then printf '%s\n' "$output" >&2; fi
+        last_output=$output
+        next_report=$((SECONDS + 30))
+      fi
+      sleep 5
+      ;;
     *) printf '%s\n' "$output" >&2; break ;;
   esac
 done

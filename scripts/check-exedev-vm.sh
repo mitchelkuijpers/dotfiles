@@ -3,13 +3,21 @@
 set -euo pipefail
 
 state_dir="$HOME/.local/state/dotfiles-bootstrap"
-case "$(cat "$state_dir/status" 2>/dev/null || true)" in
+status=$(cat "$state_dir/status" 2>/dev/null || true)
+case "$status" in
   failed) tail -n 35 "$state_dir/setup.log" >&2; exit 1 ;;
   ready) ;;
   *)
-    if [[ "$(systemctl show exe-setup.service --property=ActiveState --value)" == failed ]]; then
+    service_state=$(systemctl show exe-setup.service --property=ActiveState --value 2>/dev/null || true)
+    if [[ "$service_state" == failed ]]; then
       journalctl -b -u exe-setup.service --no-pager -n 35 >&2 || true
       exit 1
+    fi
+    if [[ "$status" == running ]]; then
+      echo '==> First-boot setup is running. Latest output:'
+      tail -n 5 "$state_dir/setup.log" 2>/dev/null || true
+    else
+      echo "==> SSH is ready. Waiting for the first-boot script (service: ${service_state:-unknown})."
     fi
     exit 75
     ;;
