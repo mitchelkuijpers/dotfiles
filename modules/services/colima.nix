@@ -8,6 +8,38 @@
     if useVzRosetta
     then "vz"
     else "qemu";
+
+  # The stock fstrim service only reads /etc/fstab when it exists, which
+  # omits Colima's separately mounted Docker data disk. Trim all local
+  # filesystems daily so deleted Docker data releases host disk space.
+  trimProvision = [
+    {
+      mode = "system";
+      script = ''
+        set -eu
+        mkdir -p /etc/systemd/system/fstrim.service.d /etc/systemd/system/fstrim.timer.d
+        cat > /etc/systemd/system/fstrim.service.d/colima.conf <<'EOF'
+        [Unit]
+        Description=Discard unused blocks on all mounted local filesystems
+
+        [Service]
+        ExecStart=
+        ExecStart=/sbin/fstrim --all --verbose --quiet-unsupported
+        EOF
+        cat > /etc/systemd/system/fstrim.timer.d/colima.conf <<'EOF'
+        [Unit]
+        Description=Discard unused filesystem blocks daily
+
+        [Timer]
+        OnCalendar=
+        OnCalendar=daily
+        EOF
+        systemctl daemon-reload
+        systemctl enable fstrim.timer
+        systemctl restart fstrim.timer
+      '';
+    }
+  ];
 in {
   # Helpers for the launchd-managed colima profiles below. Plain scripts (not
   # fish functions) so both humans and agents can run them from any shell.
@@ -72,6 +104,7 @@ in {
 
         settings = {
           runtime = "docker";
+          provision = trimProvision;
           cpu = 12;
           disk = 40;
           memory = 8;
@@ -100,6 +133,7 @@ in {
 
         settings = {
           runtime = "docker";
+          provision = trimProvision;
 
           cpu = 6;
           disk = 40;
