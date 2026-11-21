@@ -149,13 +149,29 @@ The controller verifies the checked-out revision, Neovim in the managed login
 shell, and a command run through the Rex service over SSH. The default wait is 20 minutes.
 Set `VM_WAIT_SECONDS` to adjust it. On failure, the controller leaves the VM
 available for inspection. The first-boot status and log are under
-`~/.local/state/dotfiles-bootstrap/`. Once the checkout exists, you can retry
-activation on the guest with `bash ~/dotfiles/scripts/setup-vm.sh`. A machine
-with an existing socket-activated Rex install needs a service migration before
-applying the Home Manager service.
+`~/.local/state/dotfiles-bootstrap/`. A machine with an existing socket-activated
+Rex install needs a service migration before applying the Home Manager service.
 
 To resume verification after the controller exits, use `make vm-check` with
 the original `VM` and `REV` values. This uses the existing VM.
+
+If first boot failed and the guest already has a clean checkout, retry from
+the Mac with a published fix. This reuses the guest's Nix store and refreshes
+the bootstrap status for the new revision. Use the guest's SSH destination in
+place of `dev-pilot.exe.xyz` if needed.
+
+```sh
+rev=$(git rev-parse HEAD)
+ssh dev-pilot.exe.xyz bash -s -- "$rev" <<'RETRY'
+set -euo pipefail
+cd "$HOME/dotfiles"
+test -z "$(git status --porcelain --untracked-files=no)"
+git fetch --depth=1 origin "$1"
+git checkout --detach "$1"
+bash scripts/exedev-first-boot.sh "$1"
+RETRY
+make vm-check VM=dev-pilot REV="$rev"
+```
 
 The pilot covers the base profile and Rex. Git-signer and Magpie enrollment are
 still separate steps, and no account-wide VM defaults are needed.

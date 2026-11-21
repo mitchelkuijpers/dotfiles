@@ -56,16 +56,28 @@
         overlays = [gitSecurityFix];
       };
 
-    mkHome = system: hostModule:
+    # Docker's Secret Service helper uses libsecret's C API. Build just that
+    # library variant on exe.dev, where the introspection-enabled package's
+    # test-collection aborted during first boot.
+    exeDevDockerHelpers = _final: prev: {
+      docker-credential-helpers = prev.docker-credential-helpers.override {
+        libsecret = prev.libsecret.override {withIntrospection = false;};
+      };
+    };
+
+    mkHome = pkgs: hostModule:
       home-manager.lib.homeManagerConfiguration {
-        pkgs = mkPkgs system;
+        inherit pkgs;
         extraSpecialArgs = {inherit inputs;};
         modules = [hostModule];
       };
 
+    mkExeDevHome = system:
+      mkHome ((mkPkgs system).appendOverlays [exeDevDockerHelpers]) ./hosts/exedev/home.nix;
+
     # Home Manager entry baked into the local agent sandbox OCI image
     # (microsandbox.dev) — see images/agent-image.nix.
-    msbHome = mkHome "aarch64-linux" ./hosts/msb/home.nix;
+    msbHome = mkHome (mkPkgs "aarch64-linux") ./hosts/msb/home.nix;
   in {
     formatter = nixpkgs.lib.genAttrs systems (system: (mkPkgs system).alejandra);
 
@@ -91,15 +103,15 @@
       };
 
     homeConfigurations = {
-      mitkuijp = mkHome "aarch64-darwin" ./hosts/mitkuijp-macbook/home.nix;
+      mitkuijp = mkHome (mkPkgs "aarch64-darwin") ./hosts/mitkuijp-macbook/home.nix;
 
       # Linux agent VMs (exe.dev login user `exedev`); pick by `uname -m`.
-      exedev = mkHome "x86_64-linux" ./hosts/exedev/home.nix;
-      exedev-arm = mkHome "aarch64-linux" ./hosts/exedev/home.nix;
+      exedev = mkExeDevHome "x86_64-linux";
+      exedev-arm = mkExeDevHome "aarch64-linux";
 
       # shellbox.dev boxes: Azure x86_64 Ubuntu, ssh in as root
       # (ssh <boxname>@shellbox.dev).
-      shellbox = mkHome "x86_64-linux" ./hosts/shellbox/home.nix;
+      shellbox = mkHome (mkPkgs "x86_64-linux") ./hosts/shellbox/home.nix;
     };
 
     # Local agent sandbox (microsandbox.dev) — not a host you deploy to; the

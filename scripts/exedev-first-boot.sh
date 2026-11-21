@@ -1,9 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
-revision='@DOTFILES_REV@'
+revision=${1:-@DOTFILES_REV@}
 if [[ ! "$revision" =~ ^[0-9a-f]{40}$ ]]; then
-  echo 'Expected vm-new to insert a full dotfiles commit SHA.' >&2
+  echo 'Expected a full dotfiles commit SHA from vm-new or the retry command.' >&2
   exit 1
 fi
 
