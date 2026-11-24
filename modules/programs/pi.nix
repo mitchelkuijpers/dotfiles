@@ -1,5 +1,4 @@
 {
-  inputs,
   pkgs,
   lib,
   config,
@@ -13,16 +12,14 @@
     defaultThinkingLevel = "high";
   };
 in {
-  programs.pi-coding-agent = {
-    enable = true;
-    package = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.pi;
+  imports = [./pi-shared.nix];
 
+  programs.pi-coding-agent = {
     # Home Manager merges shared settings into a writable file on hosts where
     # Magpie selects the model. Other hosts use the pinned Synthetic default.
     mutableSettings = lib.mkDefault pkgs.stdenv.hostPlatform.isDarwin;
     settings =
       {
-        hideThinkingBlock = false;
         npmCommand = [
           "pnpm"
           "--ignore-scripts"
@@ -43,13 +40,6 @@ in {
               source = "/Users/mitkuijp/.config/nono/packages/nolabs-ai/pi";
             }
           ];
-        editorPaddingX = 1;
-        transport = "websocket";
-        permissionLevel = "medium";
-        terminal = {
-          showTerminalProgress = true;
-        };
-        collapseChangelog = true;
       }
       # Leave Magpie's model and thinking settings out of the activation merge.
       // lib.optionalAttrs (!cfg.mutableSettings) modelDefaults;

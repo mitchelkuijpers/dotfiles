@@ -1,0 +1,50 @@
+# syntax=docker/sandbox-kit:3
+# yaml-language-server: $schema=https://raw.githubusercontent.com/docker/sandbox-kit-spec/main/schema/kit.schema.json
+schemaVersion: "3"
+kind: mixin
+displayName: Home Manager shell
+version: "1.0.0"
+
+args:
+  auto_start:
+    default: "false"
+    description: Automatically start Fish when the sandbox starts.
+    enum: ["true", "false"]
+
+provides: ["fish-shell"]
+
+capabilities:
+  - type: com.docker.sandbox/lifecycle@1
+    config:
+      install:
+        - command: |
+            set -eu
+            grep -qx /usr/local/bin/fish /etc/shells 2>/dev/null || printf '%s\n' /usr/local/bin/fish >> /etc/shells
+            usermod -s /usr/local/bin/fish agent
+          description: Register Fish as the agent login shell
+        - command: |
+            set -eu
+            files=/opt/docker-sandbox-home/home-files
+            cd "$files"
+            find . ! -type d -exec sh -eu -c '
+              for file do
+                target="/home/agent/$file"
+                mkdir -p "$(dirname "$target")"
+                case "$file" in
+                  ./.pi/agent/settings.json)
+                    # Keep provider and model choices writable across sessions.
+                    if [ ! -e "$target" ] && [ ! -L "$target" ]; then
+                      install -m 0600 "$PWD/$file" "$target"
+                    fi
+                    ;;
+                  *) ln -sfnT "$PWD/$file" "$target" ;;
+                esac
+              done
+            ' sh {} +
+            ln -sfnT /opt/docker-sandbox-home/home-path /home/agent/.nix-profile
+            if [ "${{ kit.args.auto_start }}" = "true" ]; then
+              printf '%s\n' '#!/bin/sh' 'export SHELL=/usr/local/bin/fish' 'exec "$SHELL" -l' > /home/agent/entrypoint.sh
+              chmod 0700 /home/agent/entrypoint.sh
+            fi
+          description: Install the Home Manager configuration and optionally start Fish
+          user: "1000"

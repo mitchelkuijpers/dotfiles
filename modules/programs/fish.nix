@@ -1,20 +1,11 @@
-{pkgs, ...}: {
+_: {
+  imports = [./fish-shared.nix];
+
   programs.devenv = {
     enable = true;
     enableFishIntegration = false;
   };
   programs.fish = {
-    enable = true;
-
-    functions.refresh-env = {
-      description = "Reload Home Manager session variables";
-      # Clear the inherited guard before replacing this shell, not Herdr.
-      body = ''
-        set -e __HM_SESS_VARS_SOURCED
-        exec fish
-      '';
-    };
-
     # Abbreviations expand on Enter, so any shell syntax (env vars, flags) is fine.
     shellAbbrs = {
       # Docker per colima profile: colima registers one Docker context per profile.
@@ -27,25 +18,7 @@
       # runs with Bash as its command shell to avoid Fish writing protected
       # config/history paths inside the sandbox.
     };
-    plugins = [
-      {
-        name = "z";
-        src = pkgs.fishPlugins.z;
-      }
-
-      {
-        name = "fzf";
-        src = pkgs.fishPlugins.fzf;
-      }
-    ];
     interactiveShellInit = ''
-      set fish_greeting
-      fish_vi_key_bindings
-
-      # Keep Nix profile paths in front so Nix-installed tools win over system ones.
-      fish_add_path ~/.bin
-      fish_add_path --prepend --move ~/.nix-profile/bin /etc/profiles/per-user/$USER/bin
-
       # Was needed for vite plus
       # bass source ~/.zshenv
 

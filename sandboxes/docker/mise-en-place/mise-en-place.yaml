@@ -1,0 +1,24 @@
+# syntax=docker/sandbox-kit:3
+# yaml-language-server: $schema=https://raw.githubusercontent.com/docker/sandbox-kit-spec/main/schema/kit.schema.json
+schemaVersion: "3"
+kind: mixin
+displayName: Mise tool manager
+version: "1.0.0"
+
+provides: ["mise-en-place"]
+
+capabilities:
+  - type: com.docker.sandbox/network-policy@2
+    config:
+      runtime:
+        allow: [ mise*.jdx.dev ]
+  - type: com.docker.sandbox/lifecycle@1
+    config:
+      install:
+        - command: "mise activate >> /etc/sandbox-persistent.sh"
+          description: Activate mise in the persistent environment
+          user: "1000"
+      startup:
+        - command: [ 'sh', '-c', '"mise" trust "${WORKSPACE_DIR:?WORKSPACE_DIR is not set}"' ]
+          description: Trust the workspace directory for mise
+          env: [ WORKSPACE_DIR ]

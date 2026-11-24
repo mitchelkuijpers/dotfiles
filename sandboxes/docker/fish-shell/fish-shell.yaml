@@ -1,0 +1,34 @@
+# syntax=docker/sandbox-kit:3
+# yaml-language-server: $schema=https://raw.githubusercontent.com/docker/sandbox-kit-spec/main/schema/kit.schema.json
+schemaVersion: "3"
+kind: mixin
+displayName: Fish shell
+version: "1.0.0"
+
+args:
+  auto_start:
+    default: "false"
+    description: Automatically start fish when the sandbox starts.
+    enum: [ "true", "false" ]
+
+provides: [ "fish-shell" ]
+
+capabilities:
+  - type: com.docker.sandbox/lifecycle@1
+    config:
+      install:
+        - command: |
+            grep -qx /usr/local/bin/fish /etc/shells 2>/dev/null || printf '%s\n' /bin/sh /bin/bash /usr/local/bin/fish >> /etc/shells
+            usermod -s /usr/local/bin/fish agent
+          description: Register fish in /etc/shells and make it the agent login shell
+        - command: |
+            grep -qs '^export SHELL=' /etc/sandbox-persistent.sh || printf 'export SHELL=/usr/local/bin/fish\n' >> /etc/sandbox-persistent.sh
+          description: Export fish as SHELL in the persistent environment
+          user: "1000"
+        - command: |
+            if [ "${{ kit.args.auto_start }}" = "true" ]; then
+              printf '#!/usr/bin/env bash\nfish -l\n' > /home/agent/entrypoint.sh
+              chmod 0700 /home/agent/entrypoint.sh
+            fi
+          description: Write the fish entrypoint override when auto_start is enabled
+          user: "1000"

@@ -75,6 +75,11 @@
     mkExeDevHome = system:
       mkHome ((mkPkgs system).appendOverlays [exeDevDockerHelpers]) ./hosts/exedev/home.nix;
 
+    # The shell bundle uses the locked nixpkgs binaries. The host Git overlay
+    # would otherwise force a Starship rebuild solely for its Git test input.
+    dockerSandboxHome = system:
+      mkHome nixpkgs.legacyPackages.${system} ./hosts/docker-sandbox/home.nix;
+
     # Home Manager entry baked into the local agent sandbox OCI image
     # (microsandbox.dev) — see images/agent-image.nix.
     msbHome = mkHome (mkPkgs "aarch64-linux") ./hosts/msb/home.nix;
@@ -112,6 +117,9 @@
       # shellbox.dev boxes: Azure x86_64 Ubuntu, ssh in as root
       # (ssh <boxname>@shellbox.dev).
       shellbox = mkHome (mkPkgs "x86_64-linux") ./hosts/shellbox/home.nix;
+
+      docker-sandbox = dockerSandboxHome "x86_64-linux";
+      docker-sandbox-arm = dockerSandboxHome "aarch64-linux";
     };
 
     # Local agent sandbox (microsandbox.dev) — not a host you deploy to; the
